@@ -1,0 +1,47 @@
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  
+}
+
+enum UserRole {
+  MEMBER
+  ADMIN
+  GUEST
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  name      String?
+  createdAt DateTime @default(now())
+  role String @default("MEMBER")
+  routes Route[]
+  @@index([email])
+}
+
+model Route {
+  id        String   @id @default(uuid())
+  name      String?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  createdAt DateTime @default(now())
+  points    Point[]
+  @@index([userId])
+}
+
+model Point {
+  id        String   @id @default(uuid())
+  routeId   String
+  route     Route    @relation(fields: [routeId], references: [id])
+  latitude  Float
+  longitude Float
+  name      String? @db.VarChar(255)
+
+  @@index([routeId])
+}
