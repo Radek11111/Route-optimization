@@ -3,7 +3,7 @@ export interface Point {
     latitude: number;
     longitude: number;
 
-    serviceTimeMinutes?: number;
+    serviceTimeMinutes?: number ;
     priority?: number;
 
     timeWindow?: {
