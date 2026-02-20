@@ -1,6 +1,6 @@
 import { RouteSimulationState } from "@/domain/types/RouteSimulationState";
 
-export function createInitialState(depotIndex: number): RouteSimulationState {
+export function createSimulationState(depotIndex: number): RouteSimulationState {
   return {
     currentTime: 0,
     totalTravelTime: 0,

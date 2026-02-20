@@ -6,13 +6,13 @@ export function simulateRoute(
   route: string[],
   distanceMatrix: number[][],
   points: Point[],
-  pointIndex: Map<string, number>,
+  pointIndexMap: Map<string, number>,
   constraints: Constraints,
   depotIndex: number,
   state: RouteSimulationState,
 ) {
   for (const pointId of route) {
-    const pointIndexValue = pointIndex.get(pointId);
+    const pointIndexValue = pointIndexMap.get(pointId);
     if (pointIndexValue === undefined) continue;
 
     const point = points[pointIndexValue];
