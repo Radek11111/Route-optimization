@@ -2,17 +2,14 @@ import { Point } from "@/domain/types/Point";
 import { PENALTIES } from "./pentalties.config";
 
 export function calculatePriorityPenalty(
-  route: string[],
+  route: number[],
   points: Point[],
-  pointIndex: Map<string, number>,
 ): number {
   let penalty = 0;
 
-  route.forEach((id, position) => {
-    const index = pointIndex.get(id);
-    if (index === undefined) return;
+  route.forEach((pointIndex, position) => {
+    const point = points[pointIndex];
 
-    const point = points[index];
     if (!point.priority || point.priority <= 5) return;
 
     const normalizedPriority = (point.priority - 5) / 5;

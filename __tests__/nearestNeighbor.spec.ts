@@ -1,4 +1,5 @@
-import { nearestNeighbor } from "@/app/api/optimize/route";
+
+import { nearestNeighbor } from "@/domain/tps/heuristics/nearestNeighbor";
 import { describe, expect, it } from "vitest";
 
 describe("nearest neighbor", () => {

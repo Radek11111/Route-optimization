@@ -1,30 +1,26 @@
 import { Constraints } from "@/domain/types/Constraints";
 import { Point } from "@/domain/types/Point";
 import { RouteSimulationState } from "@/domain/types/RouteSimulationState";
+import { finalizeSimulation } from "./finalizeSimulation";
 
 export function simulateRoute(
-  route: string[],
+  route: number[],
   distanceMatrix: number[][],
   points: Point[],
-  pointIndexMap: Map<string, number>,
   constraints: Constraints,
   depotIndex: number,
   state: RouteSimulationState,
 ) {
-  for (const pointId of route) {
-    const pointIndexValue = pointIndexMap.get(pointId);
-    if (pointIndexValue === undefined) continue;
-
-    const point = points[pointIndexValue];
-
-    travelToPoint(state, distanceMatrix, pointIndexValue);
+  for (const pointIndex of route) {
+    const point = points[pointIndex];
+    travelToPoint(state, distanceMatrix, pointIndex);
     handleTimeWindow(state, point);
     applyServiceTime(state, point);
-
-    state.lastPointIndex = pointIndexValue;
+    state.lastPointIndex = pointIndex;
   }
 
   handleReturnToDepot(state, distanceMatrix, depotIndex, constraints, route);
+  finalizeSimulation(state, constraints, depotIndex);
 }
 
 function travelToPoint(
@@ -33,6 +29,11 @@ function travelToPoint(
   nextIndex: number,
 ) {
   const travelTime = matrix[state.lastPointIndex][nextIndex];
+  if (travelTime === undefined) {
+    throw new Error(
+      `Matrix missing value ${state.lastPointIndex} -> ${nextIndex}`,
+    );
+  }
   state.totalTravelTime += travelTime;
   state.currentTime += travelTime;
 }
@@ -66,7 +67,7 @@ function handleReturnToDepot(
   matrix: number[][],
   depotIndex: number,
   constraints: Constraints,
-  route: string[],
+  route: number[],
 ) {
   if (!constraints.returnToDepot) return;
 
