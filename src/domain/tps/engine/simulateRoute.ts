@@ -21,6 +21,7 @@ export function simulateRoute(
 
   handleReturnToDepot(state, distanceMatrix, depotIndex, constraints, route);
   finalizeSimulation(state, constraints, depotIndex);
+  return state;
 }
 
 function travelToPoint(
@@ -28,7 +29,7 @@ function travelToPoint(
   matrix: number[][],
   nextIndex: number,
 ) {
-  const travelTime = matrix[state.lastPointIndex][nextIndex];
+  const travelTime = matrix[state.lastPointIndex]?.[nextIndex];
   if (travelTime === undefined) {
     throw new Error(
       `Matrix missing value ${state.lastPointIndex} -> ${nextIndex}`,

@@ -1,14 +1,14 @@
 import { Constraints } from "@/domain/types/Constraints";
 import { CostResult } from "@/domain/types/costResult";
 import { Point } from "@/domain/types/Point";
-import { buildPointIndexMap } from "../engine/pointItex.map";
 import { createSimulationState } from "../engine/simulationState.factory";
 import { simulateRoute } from "../engine/simulateRoute";
-import { calculateWorkTimePenalty } from "./workTime.penalty";
-import { calculateTimeWindowPenalty } from "./timeWindow.penalty";
-import { calculatePriorityPenalty } from "./priority.penalty";
-import { calculateReturnPenalty } from "./returnPenalties";
+
 import { CostBreakdown } from "@/domain/types/CostBreakdown";
+import { calculateWorkTimePenalty } from "../penalties/workTime.penalty";
+import { calculateTimeWindowPenalty } from "../penalties/timeWindow.penalty";
+import { calculatePriorityPenalty } from "../penalties/priority.penalty";
+import { calculateReturnPenalty } from "../penalties/returnPenalties";
 
 export function routeCostEvaluator(
   route: number[],
@@ -17,8 +17,8 @@ export function routeCostEvaluator(
   constraints: Constraints,
   depotIndex: number = 0,
 ): CostResult {
-  const pointIndexMap = buildPointIndexMap(points);
   const state = createSimulationState(depotIndex, constraints);
+
   simulateRoute(route, matrix, points, constraints, depotIndex, state);
 
   const workTimePenalty = calculateWorkTimePenalty(state);
@@ -28,7 +28,6 @@ export function routeCostEvaluator(
 
   const breakdown: CostBreakdown = {
     travelTime: state.totalTravelTime,
-    serviceTime: state.totalServiceTime,
     workTimePenalty,
     timeWindowPenalty,
     priorityPenalty,
@@ -37,16 +36,15 @@ export function routeCostEvaluator(
 
   const totalCost =
     breakdown.travelTime +
-    breakdown.serviceTime +
     breakdown.workTimePenalty +
     breakdown.timeWindowPenalty +
     breakdown.priorityPenalty +
     breakdown.returnToDepotPenalty;
 
   const feasible =
-    state.violations.workTime === 0 &&
+    !state.violations.workTime &&
     state.violations.timeWindows.length === 0 &&
-    state.violations.returnViolation === false;
+    !state.violations.returnViolation;
   return {
     totalCost,
     breakdown,
