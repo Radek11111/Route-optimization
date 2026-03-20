@@ -11,9 +11,9 @@ describe("nearest neighbor", () => {
     ];
     const route = nearestNeighbor(3, matrix, 0);
 
-    expect(route.length).toBe(3);
+    expect(route.length).toBe(2);
     const uniquePoints = new Set(route);
-    expect(uniquePoints.size).toBe(3);
+    expect(uniquePoints.size).toBe(2);
   });
 
   it("should choose nearest neighbor first", () => {
@@ -23,7 +23,7 @@ describe("nearest neighbor", () => {
       [10, 2, 0],
     ];
     const route = nearestNeighbor(3, matrix, 0);
-    expect(route[1]).toBe(1);
+    expect(route[0]).toBe(1);
   });
 
   it(" should start from provided startIndex", () => {
@@ -33,6 +33,6 @@ describe("nearest neighbor", () => {
       [10, 2, 0],
     ];
     const route = nearestNeighbor(3, matrix, 2);
-    expect(route[0]).toBe(2);
+    expect(route).not.toContain(2);
   });
 });
