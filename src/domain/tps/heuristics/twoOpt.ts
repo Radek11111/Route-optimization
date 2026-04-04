@@ -5,7 +5,7 @@ import { routeCostEvaluator } from "../evaluators/routeCostEvaluator";
 type Input = {
   matrix: number[][];
   points: Point[];
-  contraits: Constraints;
+  constraints: Constraints;
   depotIndex: number;
 };
 
@@ -15,12 +15,14 @@ type TwoOptResult = {
 };
 
 export function twoOpt(route: number[], input: Input): TwoOptResult {
+  validateRoute(route, input.points);
+  
   let bestRoute = [...route];
   let bestCost = routeCostEvaluator(
     bestRoute,
     input.matrix,
     input.points,
-    input.contraits,
+    input.constraints,
     input.depotIndex,
   ).totalCost;
 
@@ -36,7 +38,7 @@ export function twoOpt(route: number[], input: Input): TwoOptResult {
         newRoute,
         input.matrix,
         input.points,
-        input.contraits,
+        input.constraints,
         input.depotIndex,
       ).totalCost;
 
@@ -59,4 +61,12 @@ function twoOptSwap(route: number[], i: number, k: number): number[] {
     ...route.slice(i, k + 1).reverse(),
     ...route.slice(k + 1),
   ];
+}
+
+function validateRoute(route: number[], points: Point[]) {
+  for (const index of route) {
+    if (index < 0 || index >= points.length) {
+      throw new Error(`Invalid point index in route: ${index}`);
+    }
+  }
 }
