@@ -1,6 +1,4 @@
-import { solutionCostEvaluator } from "@/domain/tps/evaluators/solutionCostEvatuator";
 import { nearestNeighborMultiRandom } from "@/domain/tps/heuristics/nearestNeighborMultiRandom";
-import { multiStartSolver } from "@/domain/tps/solver/multiStartSolver";
 import { describe, expect, it } from "vitest";
 
 describe("nearestNeighborMultiRandom", () => {
@@ -11,13 +9,6 @@ describe("nearestNeighborMultiRandom", () => {
     [30, 25, 10, 0],
   ];
 
-  const points = [
-    { id: "depot", latitude: 0, longitude: 0 },
-    { id: "A", latitude: 0, longitude: 0 },
-    { id: "B", latitude: 0, longitude: 0 },
-    { id: "C", latitude: 0, longitude: 0 },
-  ];
-
   const constraints = {
     workStartMinutes: 0,
     workEndMinutes: 1000,
@@ -25,38 +16,54 @@ describe("nearestNeighborMultiRandom", () => {
     returnToDepot: true,
   };
 
-  const input = {
-    matrix,
-    points,
-    constraints,
-    depotIndex: 0,
+  const baseInput = {
+    pointCount: 4,
     vehicleCount: 2,
+    durationMatrix: matrix,
+    depotIndex: 0,
   };
- it("assigns points uniquely", () => {
-   const result = nearestNeighborMultiRandom({
-     pointCount: 4,
-     vehicleCount: 2,
-     durationMatrix: matrix,
-     depotIndex: 0,
-   });
+  it("should returns correct nuber of routes", () => {
+    const result = nearestNeighborMultiRandom(baseInput);
+    expect(result.routes.length).toBe(baseInput.vehicleCount);
+  });
+  it("assigns each point to exactly once ", () => {
+    const result = nearestNeighborMultiRandom(baseInput);
+    const allPoits = result.routes.flat();
+    const uniquePoints = new Set(allPoits);
 
-   const allPoints = result.routes.flat();
-   const unique = new Set(allPoints);
+    expect(uniquePoints.size).toBe(allPoits.length);
+  });
 
-   expect(unique.size).toBe(allPoints.length);
- });
- it("covers all non-depot points", () => {
-   const result = nearestNeighborMultiRandom({
-     pointCount: 4,
-     vehicleCount: 2,
-     durationMatrix: matrix,
-     depotIndex: 0,
-   });
+  it("covers all non-depot points", () => {
+    const result = nearestNeighborMultiRandom(baseInput);
 
-   const allPoints = result.routes.flat().sort();
+    const allPoits = result.routes.flat().sort();
 
-   expect(allPoints).toEqual([1, 2, 3]);
- });
+    expect(allPoits).toEqual([1, 2, 3]);
+  });
 
+  it("does not include depot in routes", () => {
+    const result = nearestNeighborMultiRandom(baseInput);
+    const allPoits = result.routes.flat();
+    expect(allPoits.includes(0)).toBe(false);
+  });
 
+  it("respects vehicle capacity (balance split)", () => {
+    const result = nearestNeighborMultiRandom(baseInput);
+
+    const sizes = result.routes.map((route) => route.length);
+
+    expect(Math.max(...sizes) - Math.min(...sizes)).toBeLessThanOrEqual(1);
+  });
+
+  it("throws error for invalid matrix", () => {
+    const invalidInput = [[0, 1]];
+
+    expect(() =>
+      nearestNeighborMultiRandom({
+        ...baseInput,
+        durationMatrix: invalidInput,
+      }),
+    ).toThrow();
+  });
 });
