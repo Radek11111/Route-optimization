@@ -2,7 +2,7 @@ import { Constraints } from "@/domain/types/Constraints";
 import { Point } from "@/domain/types/Point";
 import { Solution } from "@/domain/types/Solution";
 import { twoOpt } from "../heuristics/twoOpt";
-import { relocateRoute } from "../heuristics/relocateRoute";
+import { relocateOperator } from "../heuristics/relocateOperator";
 import { solutionCostEvaluator } from "../evaluators/solutionCostEvatuator";
 
 type Input = {
@@ -29,7 +29,7 @@ export function localSearch(initialSolution: Solution, input: Input) {
     });
     currentSolution.routes = newRoutes;
 
-    const relocateResult = relocateRoute(currentSolution, input);
+    const relocateResult = relocateOperator(currentSolution, input);
 
     if (relocateResult.improved) {
       currentSolution = relocateResult.solution;

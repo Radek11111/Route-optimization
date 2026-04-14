@@ -1,7 +1,7 @@
-import { relocateRoute } from "@/domain/tps/heuristics/relocateRoute";
+import { relocateOperator } from "@/domain/tps/heuristics/relocateOperator";
 import { describe, expect, it } from "vitest";
 
-describe("relocateRoute", () => {
+describe("relocateOperator", () => {
   it("improves solution by relocating point", () => {
     const solution = {
       routes: [[1, 2], [3]],
@@ -32,7 +32,7 @@ describe("relocateRoute", () => {
       },
       depotIndex: 0,
     };
-    const result = relocateRoute(solution, input);
+    const result = relocateOperator(solution, input);
     expect(result.improved).toBe(true);
   });
   it("does not change already optimal solution", () => {
@@ -67,7 +67,7 @@ describe("relocateRoute", () => {
       depotIndex: 0,
     };
 
-    const result = relocateRoute(solution, input);
+    const result = relocateOperator(solution, input);
 
     expect(result.improved).toBe(false);
   });
@@ -101,7 +101,7 @@ describe("relocateRoute", () => {
       depotIndex: 0,
     };
 
-    const result = relocateRoute(solution, input);
+    const result = relocateOperator(solution, input);
 
     const allPoints = result.solution.routes.flat();
 

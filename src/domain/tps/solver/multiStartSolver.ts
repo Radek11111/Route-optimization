@@ -13,13 +13,10 @@ type Input = {
   iterations?: number;
 };
 
-export function multiStartSolver(
-  input: Input,
-  initialSolution: Solution,
-): Solution {
+export function multiStartSolver(input: Input): Solution {
   const iterations = input.iterations ?? 20;
 
-  let bestSolution = structuredClone(initialSolution);
+  let bestSolution: Solution | null = null;
   let bestCost = Infinity;
 
   for (let i = 0; i < iterations; i++) {
