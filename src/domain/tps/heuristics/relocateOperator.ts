@@ -1,5 +1,5 @@
 import { Solution } from "@/domain/types/Solution";
-import { solutionCostEvaluator } from "../evaluators/solutionCostEvatuator";
+import { solutionCostEvaluator } from "../evaluators/solutionCostEvaluator";
 import { Point } from "@/domain/types/Point";
 import { Constraints } from "@/domain/types/Constraints";
 

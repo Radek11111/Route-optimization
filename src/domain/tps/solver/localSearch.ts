@@ -1,9 +1,10 @@
 import { Constraints } from "@/domain/types/Constraints";
 import { Point } from "@/domain/types/Point";
 import { Solution } from "@/domain/types/Solution";
-import { twoOpt } from "../heuristics/twoOpt";
 import { relocateOperator } from "../heuristics/relocateOperator";
-import { solutionCostEvaluator } from "../evaluators/solutionCostEvatuator";
+import { solutionCostEvaluator } from "../evaluators/solutionCostEvaluator";
+import { swapOperator } from "../heuristics/swapOperator";
+import { twoOpt } from "../heuristics/twoOpt";
 
 type Input = {
   matrix: number[][];
@@ -16,27 +17,38 @@ type Input = {
 export function localSearch(initialSolution: Solution, input: Input) {
   let currentSolution = structuredClone(initialSolution);
 
-  let iteration = 0;
   const maxIterations = input.maxIterations ?? 50;
 
-  while (iteration < maxIterations) {
-    let improved = false;
+  let improved = true;
+  let iteration = 0;
 
-    const newRoutes = currentSolution.routes.map((route) => {
-      const result = twoOpt(route, input);
-      if (result.improved) improved = true;
-      return result.route;
-    });
-    currentSolution.routes = newRoutes;
+  while (improved && iteration < maxIterations) {
+    improved = false;
+    iteration++;
 
     const relocateResult = relocateOperator(currentSolution, input);
 
     if (relocateResult.improved) {
       currentSolution = relocateResult.solution;
       improved = true;
+      continue;
     }
-    if (!improved) break;
-    iteration++;
+
+    const swapResult = swapOperator(currentSolution, input);
+
+    if (swapResult.improved) {
+      currentSolution = swapResult.solution;
+      improved = true;
+      continue;
+    }
+
+    for (let r = 0; r < currentSolution.routes.length; r++) {
+      const result = twoOpt(currentSolution.routes[r], input);
+      if (result.improved) {
+        currentSolution.routes[r] = result.route;
+        improved = true;
+      }
+    }
   }
 
   const finalCost = solutionCostEvaluator(

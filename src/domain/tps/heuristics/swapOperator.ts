@@ -1,7 +1,7 @@
 import { Constraints } from "@/domain/types/Constraints";
 import { Point } from "@/domain/types/Point";
 import { Solution } from "@/domain/types/Solution";
-import { solutionCostEvaluator } from "../evaluators/solutionCostEvatuator";
+import { solutionCostEvaluator } from "../evaluators/solutionCostEvaluator";
 
 type Input = {
   matrix: number[][];
