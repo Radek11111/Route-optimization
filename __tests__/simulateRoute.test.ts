@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { simulateRoute } from "@/domain/tps/engine/simulateRoute";
-import { createSimulationState } from "@/domain/tps/engine/simulationState.factory";
+import { createSimulationState } from "@/domain/tps/factories/createSimulationState";
 import { Point } from "@/domain/types/Point";
 import { Constraints } from "@/domain/types/Constraints";
 

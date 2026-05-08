@@ -1,4 +1,7 @@
+import { Constraints } from "@/domain/types/Constraints";
+import { Point } from "@/domain/types/Point";
 import { Solution } from "@/domain/types/Solution";
+import { solutionCostEvaluator } from "../evaluators/solutionCostEvaluator";
 
 type Input = {
   pointCount: number;
@@ -6,6 +9,8 @@ type Input = {
   durationMatrix: number[][];
   depotIndex: number;
   randomness?: number;
+  points: Point[];
+  constraints: Constraints;
 };
 
 export function nearestNeighborMultiRandom(input: Input): Solution {
@@ -61,11 +66,19 @@ export function nearestNeighborMultiRandom(input: Input): Solution {
     routes.push(route);
   }
 
+  const evaluation = solutionCostEvaluator(
+    routes,
+    durationMatrix,
+    input.points,
+    input.constraints,
+    depotIndex,
+  );
+
   return {
     routes,
     unassigned: Array.from(unvisited),
-    totalCost: 0,
-    feasible: false,
+    totalCost: evaluation.totalCost,
+    feasible: evaluation.feasible,
   };
 }
 

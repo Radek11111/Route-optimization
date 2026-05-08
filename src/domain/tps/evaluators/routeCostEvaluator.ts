@@ -1,7 +1,7 @@
 import { Constraints } from "@/domain/types/Constraints";
 import { CostResult } from "@/domain/types/costResult";
 import { Point } from "@/domain/types/Point";
-import { createSimulationState } from "../engine/simulationState.factory";
+import { createSimulationState } from "../factories/createSimulationState";
 import { simulateRoute } from "../engine/simulateRoute";
 
 import { CostBreakdown } from "@/domain/types/CostBreakdown";

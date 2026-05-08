@@ -2,6 +2,13 @@ import { nearestNeighborMultiRandom } from "@/domain/tps/heuristics/nearestNeigh
 import { describe, expect, it } from "vitest";
 
 describe("nearestNeighborMultiRandom", () => {
+  const points = [
+    { id: "depot", latitude: 0, longitude: 0 },
+    { id: "p1", latitude: 1, longitude: 1 },
+    { id: "p2", latitude: 2, longitude: 2 },
+    { id: "p3", latitude: 3, longitude: 3 },
+  ];
+
   const matrix = [
     [0, 10, 20, 30],
     [10, 0, 15, 25],
@@ -21,6 +28,8 @@ describe("nearestNeighborMultiRandom", () => {
     vehicleCount: 2,
     durationMatrix: matrix,
     depotIndex: 0,
+    points,
+    constraints,
   };
   it("should returns correct nuber of routes", () => {
     const result = nearestNeighborMultiRandom(baseInput);

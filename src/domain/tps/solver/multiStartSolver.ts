@@ -3,6 +3,7 @@ import { Point } from "@/domain/types/Point";
 import { Solution } from "@/domain/types/Solution";
 import { nearestNeighborMultiRandom } from "../heuristics/nearestNeighborMultiRandom";
 import { localSearch } from "./localSearch";
+import { createEmptySolution } from "../factories/createEmptySolution";
 
 type Input = {
   matrix: number[][];
@@ -14,6 +15,10 @@ type Input = {
 };
 
 export function multiStartSolver(input: Input): Solution {
+  if (input.points.length <= 1) {
+    return createEmptySolution(input.vehicleCount);
+  }
+
   const iterations = input.iterations ?? 20;
 
   let bestSolution: Solution | null = null;
@@ -26,6 +31,8 @@ export function multiStartSolver(input: Input): Solution {
       durationMatrix: input.matrix,
       depotIndex: input.depotIndex,
       randomness: 3,
+      points: input.points,
+      constraints: input.constraints,
     });
     const improvedSolution = localSearch(initialSolution, {
       matrix: input.matrix,
@@ -42,7 +49,7 @@ export function multiStartSolver(input: Input): Solution {
     }
   }
   if (!bestSolution) {
-    throw new Error("No solution found");
+    return createEmptySolution(input.vehicleCount);
   }
 
   return bestSolution;
