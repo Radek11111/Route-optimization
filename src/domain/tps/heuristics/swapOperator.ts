@@ -2,6 +2,7 @@ import { Constraints } from "@/domain/types/Constraints";
 import { Point } from "@/domain/types/Point";
 import { Solution } from "@/domain/types/Solution";
 import { solutionCostEvaluator } from "../evaluators/solutionCostEvaluator";
+import { isBetterSolution } from "../utils/isBetterSolution";
 
 type Input = {
   matrix: number[][];
@@ -13,13 +14,13 @@ type Input = {
 export function swapOperator(solution: Solution, input: Input) {
   let bestSolution = structuredClone(solution);
 
-  let bestCost = solutionCostEvaluator(
+  let bestEvaluation = solutionCostEvaluator(
     bestSolution.routes,
     input.matrix,
     input.points,
     input.constraints,
     input.depotIndex,
-  ).totalCost;
+  );
 
   let globalImproved = false;
   let improved: boolean;
@@ -37,25 +38,28 @@ export function swapOperator(solution: Solution, input: Input) {
             const pointA = route1[i];
             const pointB = route2[j];
 
-            route1[i] = pointB;
-            route2[j] = pointA;
+            if (r1 === r2 && i === j) continue;
 
-            const newCost = solutionCostEvaluator(
-              bestSolution.routes,
+            const candidate = structuredClone(bestSolution);
+
+            candidate.routes[r1][i] = pointB;
+            candidate.routes[r2][j] = pointA;
+
+            const candidateEvaluation = solutionCostEvaluator(
+              candidate.routes,
               input.matrix,
               input.points,
               input.constraints,
               input.depotIndex,
-            ).totalCost;
+            );
 
-            if (newCost < bestCost) {
-              bestCost = newCost;
+            if (isBetterSolution(candidateEvaluation, bestEvaluation)) {
+              bestSolution = candidate;
+              bestEvaluation = candidateEvaluation;
               improved = true;
               globalImproved = true;
               break outer;
             }
-            route1[i] = pointA;
-            route2[j] = pointB;
           }
         }
       }
@@ -63,7 +67,7 @@ export function swapOperator(solution: Solution, input: Input) {
   } while (improved);
 
   return {
-    solution: structuredClone(bestSolution),
+    solution: bestSolution,
     improved: globalImproved,
   };
 }

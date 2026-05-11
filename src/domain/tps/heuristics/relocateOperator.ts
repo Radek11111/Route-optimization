@@ -2,6 +2,7 @@ import { Solution } from "@/domain/types/Solution";
 import { solutionCostEvaluator } from "../evaluators/solutionCostEvaluator";
 import { Point } from "@/domain/types/Point";
 import { Constraints } from "@/domain/types/Constraints";
+import { isBetterSolution } from "../utils/isBetterSolution";
 
 type Input = {
   matrix: number[][];
@@ -12,13 +13,13 @@ type Input = {
 
 export function relocateOperator(solution: Solution, input: Input) {
   let bestSolution = structuredClone(solution);
-  let bestCost = solutionCostEvaluator(
+  let bestEvaluation = solutionCostEvaluator(
     bestSolution.routes,
     input.matrix,
     input.points,
     input.constraints,
     input.depotIndex,
-  ).totalCost;
+  );
 
   let globalImproved = false;
   let improved: boolean;
@@ -55,17 +56,17 @@ export function relocateOperator(solution: Solution, input: Input) {
 
             candidate.routes[toRouteIndex].splice(insertIndex, 0, pointToMove);
 
-            const newCost = solutionCostEvaluator(
+            const candidateEvaluation = solutionCostEvaluator(
               candidate.routes,
               input.matrix,
               input.points,
               input.constraints,
               input.depotIndex,
-            ).totalCost;
+            );
 
-            if (newCost < bestCost) {
+            if (isBetterSolution(candidateEvaluation, bestEvaluation)) {
               bestSolution = candidate;
-              bestCost = newCost;
+              bestEvaluation = candidateEvaluation;
               improved = true;
               globalImproved = true;
               break outer;

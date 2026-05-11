@@ -1,0 +1,8 @@
+import { CostResult } from "@/domain/types/costResult";
+
+export function isBetterSolution(
+  candidate: CostResult,
+  currentBest: CostResult,
+): boolean {
+  return candidate.totalCost < currentBest.totalCost;
+}
