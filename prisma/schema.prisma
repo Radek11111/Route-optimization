@@ -15,33 +15,155 @@ enum UserRole {
   GUEST
 }
 
+enum RouteStatus {
+   DRAFT
+  READY
+  ARCHIVED
+}
+
+enum SolutionStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+}
+
 model User {
   id        String   @id @default(uuid())
   email     String   @unique
   name      String?
+
+  role UserRole @default(MEMBER)
+
   createdAt DateTime @default(now())
-  role String @default("MEMBER")
+  updatedAt DateTime @updatedAt
   routes Route[]
   @@index([email])
 }
 
 model Route {
   id        String   @id @default(uuid())
+
   name      String?
+  description String?
+
+  status RouteStatus @default(DRAFT)
+
+  vehicleCount Int @default(1)
+
   userId    String
-  user      User     @relation(fields: [userId], references: [id])
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
   createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
   points    Point[]
+  constraints RouteConstraint?
+  solution Solution?
+
   @@index([userId])
+}
+
+model RouteConstraint {
+  id        String   @id @default(uuid())
+  
+  workStartMinutes Int
+  workEndMinutes   Int
+
+  maxWorkDurationMinutes Int
+
+  breakAfterMinutes Int?
+  breakDurationMinutes Int?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  returnToDepot Boolean @default(false)
+
+  routeId    String @unique
+  route      Route  @relation(fields: [routeId], references: [id], onDelete: Cascade)
 }
 
 model Point {
   id        String   @id @default(uuid())
+
   routeId   String
-  route     Route    @relation(fields: [routeId], references: [id])
+  route     Route    @relation(fields: [routeId], references: [id], onDelete: Cascade)
+
   latitude  Float
   longitude Float
+
   name      String? @db.VarChar(255)
 
+  serviceTimeMinutes Int @default(0)
+  priority Int @default(1)
+
+  timeWindowStart Int?
+  timeWindowEnd   Int?
+
+  isDepot Boolean @default(false)
+
+  createdAt DateTime @default(now())
+
+  assignedStop RouteStop?
+
   @@index([routeId])
+}
+
+model Solution {
+  id        String   @id @default(uuid())
+
+  totalCost Float
+  feasible Boolean
+
+  status SolutionStatus @default(PENDING)
+
+  travelTime Float
+  workTimePenalty Float
+  timeWindowPenalty Float
+  returnToDepotPenalty Float
+  priorityPenalty Float
+
+  unassignedPointIds String[] 
+
+  routeId    String @unique
+  route      Route  @relation(fields: [routeId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+ vehicleRoutes VehicleRoute[]
+}
+
+model VehicleRoute {
+  id        String   @id @default(uuid())
+
+  vehicleIndex Int
+
+  totalServiceTime Float?
+  totalTravelTime Float?
+  feasible Boolean?
+
+  solutionId String
+  solution   Solution @relation(fields: [solutionId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  stops RouteStop[]
+
+  @@index([solutionId])
+}
+
+model RouteStop {
+  id        String   @id @default(uuid())
+
+  order     Int
+
+  vehicleRouteId String
+  vehicleRoute   VehicleRoute @relation(fields: [vehicleRouteId], references: [id], onDelete: Cascade)
+
+  pointId   String @unique
+  point     Point  @relation(fields: [pointId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@index([vehicleRouteId])
 }
