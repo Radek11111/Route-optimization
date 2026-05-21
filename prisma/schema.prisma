@@ -59,7 +59,7 @@ model Route {
 
   points    Point[]
   constraints RouteConstraint?
-  solution Solution?
+  solutions Solution[]
 
   @@index([userId])
 }
@@ -105,7 +105,7 @@ model Point {
 
   createdAt DateTime @default(now())
 
-  assignedStop RouteStop?
+  routeStops RouteStop[]
 
   @@index([routeId])
 }
@@ -126,7 +126,7 @@ model Solution {
 
   unassignedPointIds String[] 
 
-  routeId    String @unique
+  routeId    String 
   route      Route  @relation(fields: [routeId], references: [id], onDelete: Cascade)
 
   createdAt DateTime @default(now())
@@ -160,7 +160,7 @@ model RouteStop {
   vehicleRouteId String
   vehicleRoute   VehicleRoute @relation(fields: [vehicleRouteId], references: [id], onDelete: Cascade)
 
-  pointId   String @unique
+  pointId   String 
   point     Point  @relation(fields: [pointId], references: [id], onDelete: Cascade)
 
   createdAt DateTime @default(now())
