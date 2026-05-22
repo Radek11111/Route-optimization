@@ -57,38 +57,31 @@ model Route {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  points    Point[]
-  constraints RouteConstraint?
+  depotPointId String?
+  depotPoint   Point? @relation("RouteDepot", fields: [depotPointId], references: [id])
+
+  points Point[] @relation("RoutePoints")
+
   solutions Solution[]
 
-  @@index([userId])
-}
-
-model RouteConstraint {
-  id        String   @id @default(uuid())
-  
-  workStartMinutes Int
-  workEndMinutes   Int
-
+   workStartMinutes       Int
+  workEndMinutes         Int
   maxWorkDurationMinutes Int
+  breakAfterMinutes      Int?
+  breakDurationMinutes   Int?
+  returnToDepot          Boolean @default(false)
 
-  breakAfterMinutes Int?
-  breakDurationMinutes Int?
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  returnToDepot Boolean @default(false)
-
-  routeId    String @unique
-  route      Route  @relation(fields: [routeId], references: [id], onDelete: Cascade)
+  @@index([userId])
+   @@index([depotPointId])
 }
+
+
 
 model Point {
   id        String   @id @default(uuid())
 
-  routeId   String
-  route     Route    @relation(fields: [routeId], references: [id], onDelete: Cascade)
+  routeId String
+  route Route @relation("RoutePoints", fields: [routeId], references: [id], onDelete: Cascade)
 
   latitude  Float
   longitude Float
@@ -101,36 +94,42 @@ model Point {
   timeWindowStart Int?
   timeWindowEnd   Int?
 
-  isDepot Boolean @default(false)
+ updatedAt DateTime @updatedAt
+
+  depotForRoutes Route[] @relation("RouteDepot")
 
   createdAt DateTime @default(now())
 
   routeStops RouteStop[]
+  unassignedPoints UnassignedPoint[]
 
-  @@index([routeId])
+ @@index([routeId])
 }
 
 model Solution {
   id        String   @id @default(uuid())
 
-  totalCost Float
+  totalCost Float @default(0)
   feasible Boolean
 
   status SolutionStatus @default(PENDING)
 
-  travelTime Float
-  workTimePenalty Float
-  timeWindowPenalty Float
-  returnToDepotPenalty Float
-  priorityPenalty Float
-
-  unassignedPointIds String[] 
+  travelTime Float @default(0)
+  workTimePenalty Float @default(0)
+  timeWindowPenalty Float @default(0)
+  returnToDepotPenalty Float @default(0)
+  priorityPenalty Float @default(0)
 
   routeId    String 
   route      Route  @relation(fields: [routeId], references: [id], onDelete: Cascade)
 
   createdAt DateTime @default(now())
  vehicleRoutes VehicleRoute[]
+
+ updatedAt DateTime @updatedAt
+
+ unassignedPoints UnassignedPoint[]
+ @@index([routeId, createdAt])
 }
 
 model VehicleRoute {
@@ -149,7 +148,8 @@ model VehicleRoute {
 
   stops RouteStop[]
 
-  @@index([solutionId])
+@@index([solutionId])
+ @@unique([solutionId, vehicleIndex])
 }
 
 model RouteStop {
@@ -165,5 +165,23 @@ model RouteStop {
 
   createdAt DateTime @default(now())
 
-  @@index([vehicleRouteId])
+ @@index([pointId])
+@@index([vehicleRouteId])
+}
+
+model UnassignedPoint {
+  id String @id @default(uuid())
+
+  solutionId String
+  solution Solution @relation(fields: [solutionId], references: [id], onDelete: Cascade)
+
+  pointId String
+  point Point @relation(fields: [pointId], references: [id], onDelete: Cascade)
+
+  reason String?
+
+  createdAt DateTime @default(now())
+
+  @@unique([solutionId, pointId])
+  @@index([solutionId])
 }
