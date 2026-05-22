@@ -16,7 +16,6 @@ export async function createPoint(input: Input) {
       priority: input.priority,
       timeWindowStart: input.timeWindowStart,
       timeWindowEnd: input.timeWindowEnd,
-      isDepot: input.isDepot,
     },
   });
 }

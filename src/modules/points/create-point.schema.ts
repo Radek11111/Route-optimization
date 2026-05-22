@@ -14,7 +14,7 @@ export const createPointSchema = z.object({
   timeWindowStart: z.number().int().min(0).max(1440).optional(),
   timeWindowEnd: z.number().int().min(0).max(1440).optional(),
 
-  isDepot: z.boolean().default(false),
+
 });
 
 export type CreatePointInput = z.infer<typeof createPointSchema>;
