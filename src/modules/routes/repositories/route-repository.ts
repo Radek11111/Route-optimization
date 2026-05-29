@@ -12,6 +12,12 @@ export async function createRoute(input: Input) {
       description: input.description,
       vehicleCount: input.vehicleCount,
       userId: input.userId,
+      workStartMinutes: input.workStartMinutes,
+      workEndMinutes: input.workEndMinutes,
+      maxWorkDurationMinutes: input.maxWorkDurationMinutes,
+      breakAfterMinutes: input.breakAfterMinutes,
+      breakDurationMinutes: input.breakDurationMinutes,
+      returnToDepot: input.returnToDepot,
     },
   });
 }

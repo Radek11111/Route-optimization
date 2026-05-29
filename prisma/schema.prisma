@@ -57,7 +57,7 @@ model Route {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  depotPointId String?
+  depotPointId String? @unique
   depotPoint   Point? @relation("RouteDepot", fields: [depotPointId], references: [id])
 
   points Point[] @relation("RoutePoints")
