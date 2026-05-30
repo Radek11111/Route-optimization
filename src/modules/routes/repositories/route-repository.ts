@@ -30,7 +30,6 @@ export async function getRoutesByUserId(userId: string) {
 
     include: {
       points: true,
-      constraints: true,
     },
     orderBy: {
       createdAt: "desc",

@@ -1,4 +1,4 @@
-import { createPointSchema } from "@/modules/points/create-point.schema";
+import { createPointSchema } from "@/modules/routes/schemas/create-point.schema";
 import { createPointService } from "@/modules/routes/services/create-point.service";
 import { errorResponse, successResponse } from "@/shared/utils/api-response";
 

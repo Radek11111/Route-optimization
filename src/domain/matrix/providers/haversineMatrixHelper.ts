@@ -1,9 +1,6 @@
 import { Point } from "@/domain/types/Point";
 
-export function haversineMatrixDistanceProvider(
-  from: Point,
-  to: Point,
-): number {
+export function haversineMatrixDistanceHelper(from: Point, to: Point): number {
   const R = 6371;
   const toRad = (deg: number) => (deg * Math.PI) / 180;
 
