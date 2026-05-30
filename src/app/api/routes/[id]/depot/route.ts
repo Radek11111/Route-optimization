@@ -24,6 +24,10 @@ export async function PUT(
     return successResponse(route, 200);
   } catch (error) {
     console.error(error);
+
+    if (error instanceof Error) {
+      return errorResponse(error.message, 400);
+    }
     return errorResponse("Failed to set route depot", 500);
   }
 }

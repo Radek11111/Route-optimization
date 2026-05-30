@@ -3,21 +3,13 @@ import { MatrixProvider } from "@/domain/types/MatrixProvider";
 import prisma from "@/lib/prisma";
 import { mapConstraintsToDomain } from "@/modules/optimization/mappers/mapConstraintsToDomain";
 import { mapPointToDomain } from "@/modules/optimization/mappers/mapPointToDomain";
-
+import { getRouteForOptimization } from "../repositories/optimization-repository";
 
 export async function runOptimizationService(
   routeId: string,
   matrixProvider: MatrixProvider,
 ) {
-  const route = await prisma.route.findUnique({
-    where: {
-      id: routeId,
-    },
-
-    include: {
-      points: true,
-    },
-  });
+  const route = await getRouteForOptimization(routeId);
 
   if (!route) {
     throw new Error("Route not found");
@@ -33,7 +25,9 @@ export async function runOptimizationService(
 
   const domainPoints = route.points.map(mapPointToDomain);
 
-  const depotIndex = route.points.findIndex((point) => point.id === route.depotPointId);
+  const depotIndex = route.points.findIndex(
+    (point) => point.id === route.depotPointId,
+  );
 
   if (depotIndex === -1) {
     throw new Error("Depot point not found");
