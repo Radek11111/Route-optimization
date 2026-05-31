@@ -1,6 +1,6 @@
 import prisma from "@/lib/prisma";
-import { CreatePointInput } from "@/modules/routes/schemas/create-point.schema";
-import { createPoint } from "../repositories/point-repository";
+import { CreatePointInput } from "@/modules/points/schemas/create-point.schema";
+import { createPoint } from "../../points/repositories/point-repository";
 
 type Input = CreatePointInput & {
   routeId: string;

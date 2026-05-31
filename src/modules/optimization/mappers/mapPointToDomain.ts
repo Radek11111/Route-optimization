@@ -7,6 +7,7 @@ export function mapPointToDomain(point: PrismaPoint): Point {
 
     latitude: point.latitude,
     longitude: point.longitude,
+    name: point.name ?? undefined,
     priority: point.priority,
     serviceTimeMinutes: point.serviceTimeMinutes,
     timeWindow:

@@ -1,13 +1,14 @@
 export interface Point {
-    id: string;
-    latitude: number;
-    longitude: number;
+  id: string;
+  latitude: number;
+  longitude: number;
+  name?: string;
 
-    serviceTimeMinutes?: number ;
-    priority?: number;
+  serviceTimeMinutes?: number;
+  priority?: number;
 
-    timeWindow?: {
-        start: number;
-        end: number;
-    }
+  timeWindow?: {
+    start: number;
+    end: number;
+  };
 }

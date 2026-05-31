@@ -1,9 +1,10 @@
 import { multiStartSolver } from "@/domain/tps/solver/multiStartSolver";
 import { MatrixProvider } from "@/domain/types/MatrixProvider";
-import prisma from "@/lib/prisma";
 import { mapConstraintsToDomain } from "@/modules/optimization/mappers/mapConstraintsToDomain";
 import { mapPointToDomain } from "@/modules/optimization/mappers/mapPointToDomain";
-import { getRouteForOptimization } from "../repositories/optimization-repository";
+import { getRouteForOptimization } from "../../optimization/repositories/optimization-repository";
+import prisma from "@/lib/prisma";
+import { optimizeRouteDto } from "@/modules/optimization/dto/optimizeRoute.dto";
 
 export async function runOptimizationService(
   routeId: string,
@@ -47,5 +48,20 @@ export async function runOptimizationService(
     vehicleCount: route.vehicleCount,
   });
 
-  return solution;
+  return optimizeRouteDto(solution, domainPoints);
+}
+
+export async function createSolution(data: {
+  routeId: string;
+  totalCost: number;
+  feasible: boolean;
+}) {
+  return prisma.solution.create({
+    data: {
+      routeId: data.routeId,
+      totalCost: data.totalCost,
+      feasible: data.feasible,
+      status: "COMPLETED",
+    },
+  });
 }
