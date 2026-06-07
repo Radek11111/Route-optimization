@@ -16,7 +16,7 @@ export async function runOptimizationService(
     throw new Error("Route not found");
   }
 
-  if (!route.depotPointId) {
+  if (!route.depotPoint) {
     throw new Error("Depot not configured");
   }
 
@@ -24,44 +24,23 @@ export async function runOptimizationService(
     throw new Error("Route has no points");
   }
 
-  const domainPoints = route.points.map(mapPointToDomain);
+ 
+  const allDomainPoints = [
+    mapPointToDomain(route.depotPoint),
+    ...route.points.map(mapPointToDomain),
+  ];
 
-  const depotIndex = route.points.findIndex(
-    (point) => point.id === route.depotPointId,
-  );
+  const depotIndex = 0;
 
-  if (depotIndex === -1) {
-    throw new Error("Depot point not found");
-  }
-
-  const matrix = await matrixProvider.getMatrix(domainPoints);
+  const matrix = await matrixProvider.getMatrix(allDomainPoints);
 
   const solution = multiStartSolver({
     matrix,
-
-    points: domainPoints,
-
+    points: allDomainPoints,
     constraints: mapConstraintsToDomain(route),
-
     depotIndex,
-
     vehicleCount: route.vehicleCount,
   });
 
-  return optimizeRouteDto(solution, domainPoints);
-}
-
-export async function createSolution(data: {
-  routeId: string;
-  totalCost: number;
-  feasible: boolean;
-}) {
-  return prisma.solution.create({
-    data: {
-      routeId: data.routeId,
-      totalCost: data.totalCost,
-      feasible: data.feasible,
-      status: "COMPLETED",
-    },
-  });
+  return { dto: optimizeRouteDto(solution, allDomainPoints), solution };
 }

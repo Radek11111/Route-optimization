@@ -9,12 +9,10 @@ export const createPointSchema = z.object({
 
   serviceTimeMinutes: z.number().int().min(0).default(0),
 
-  priority: z.number().int().min(10).default(1),
+  priority: z.number().int().min(1).max(10).default(1),
 
   timeWindowStart: z.number().int().min(0).max(1440).optional(),
   timeWindowEnd: z.number().int().min(0).max(1440).optional(),
-
-
 });
 
 export type CreatePointInput = z.infer<typeof createPointSchema>;
