@@ -15,7 +15,7 @@ export function OsrmMatrixProvider(baseUrl: string): MatrixProvider {
       }
 
       const coordinates = points
-        .map((point) => `${point.longitude}, ${point.latitude}`)
+        .map((point) => `${point.longitude},${point.latitude}`)
         .join(";");
 
       const url = `${baseUrl}/table/v1/driving/${coordinates}?annotations=duration`;

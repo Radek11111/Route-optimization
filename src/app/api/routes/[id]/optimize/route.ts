@@ -37,7 +37,7 @@ export async function POST(
         message: error instanceof Error ? error.message : "Unknown error",
       },
       {
-        status: 400,
+        status: 500,
       },
     );
   }

@@ -67,18 +67,17 @@ export async function saveFullSolution(data: {
             order,
           },
         });
-
-        for (const pointIndex of solution.unassigned) {
-          const pointId = allPoints[pointIndex].id;
-          await tx.unassignedPoint.create({
-            data: {
-              solutionId: savedSolution.id,
-              pointId,
-            },
-          });
-        }
-        return savedSolution;
       }
     }
+    for (const pointIndex of solution.unassigned) {
+      const pointId = allPoints[pointIndex].id;
+      await tx.unassignedPoint.create({
+        data: {
+          solutionId: savedSolution.id,
+          pointId,
+        },
+      });
+    }
+    return savedSolution;
   });
 }
