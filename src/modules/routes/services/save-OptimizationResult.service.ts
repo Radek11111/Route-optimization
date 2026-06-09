@@ -1,18 +1,12 @@
+import { Point } from "@/domain/types/Point";
 import { Solution } from "@/domain/types/Solution";
-import {
-  createSolution,
-  deletePreviousSolutions,
-} from "@/modules/optimization/repositories/optimization-repository";
+import { saveFullSolution } from "@/modules/optimization/repositories/optimization-repository";
 
 export async function saveOptimizationResultService(
   routeId: string,
   solution: Solution,
+  points: Point[],
+  depotPoint: Point,
 ) {
-  await deletePreviousSolutions(routeId);
-
-  return createSolution({
-    routeId,
-    totalCost: solution.totalCost,
-    feasible: solution.feasible,
-  });
+  return saveFullSolution({ routeId, solution, points, depotPoint });
 }

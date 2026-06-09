@@ -1,3 +1,5 @@
+import { Point } from "@/domain/types/Point";
+import { Solution } from "@/domain/types/Solution";
 import prisma from "@/lib/prisma";
 
 export async function getRouteForOptimization(routeId: string) {
@@ -19,25 +21,64 @@ export async function getRouteForOptimization(routeId: string) {
   });
 }
 
-export async function createSolution(data: {
+export async function saveFullSolution(data: {
   routeId: string;
-  totalCost: number;
-  feasible: boolean;
+  solution: Solution;
+  points: Point[];
+  depotPoint: Point;
 }) {
-  return prisma.solution.create({
-    data: {
-      routeId: data.routeId,
-      totalCost: data.totalCost,
-      feasible: data.feasible,
-      status: "COMPLETED",
-    },
-  });
-}
+  const { routeId, solution, points, depotPoint } = data;
 
-export async function deletePreviousSolutions(routeId: string) {
-  return prisma.solution.deleteMany({
-    where: {
-      routeId: routeId,
-    },
+  const allPoints = [depotPoint, ...points];
+  return prisma.$transaction(async (tx) => {
+    await tx.solution.deleteMany({ where: { routeId } });
+
+    const savedSolution = await tx.solution.create({
+      data: {
+        routeId,
+        totalCost: solution.totalCost,
+        feasible: solution.feasible,
+        status: "COMPLETED",
+      },
+    });
+
+    for (
+      let vehicleIndex = 0;
+      vehicleIndex < solution.routes.length;
+      vehicleIndex++
+    ) {
+      const route = solution.routes[vehicleIndex];
+
+      const vehicleRoute = await tx.vehicleRoute.create({
+        data: {
+          solutionId: savedSolution.id,
+          vehicleIndex,
+          feasible: solution.feasible,
+        },
+      });
+      for (let order = 0; order < route.length; order++) {
+        const pointIndex = route[order];
+        const pointId = allPoints[pointIndex].id;
+
+        await tx.routeStop.create({
+          data: {
+            vehicleRouteId: vehicleRoute.id,
+            pointId,
+            order,
+          },
+        });
+
+        for (const pointIndex of solution.unassigned) {
+          const pointId = allPoints[pointIndex].id;
+          await tx.unassignedPoint.create({
+            data: {
+              solutionId: savedSolution.id,
+              pointId,
+            },
+          });
+        }
+        return savedSolution;
+      }
+    }
   });
 }

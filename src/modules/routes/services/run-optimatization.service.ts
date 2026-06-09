@@ -3,7 +3,6 @@ import { MatrixProvider } from "@/domain/types/MatrixProvider";
 import { mapConstraintsToDomain } from "@/modules/optimization/mappers/mapConstraintsToDomain";
 import { mapPointToDomain } from "@/modules/optimization/mappers/mapPointToDomain";
 import { getRouteForOptimization } from "../../optimization/repositories/optimization-repository";
-import prisma from "@/lib/prisma";
 import { optimizeRouteDto } from "@/modules/optimization/dto/optimizeRoute.dto";
 
 export async function runOptimizationService(
@@ -24,11 +23,9 @@ export async function runOptimizationService(
     throw new Error("Route has no points");
   }
 
- 
-  const allDomainPoints = [
-    mapPointToDomain(route.depotPoint),
-    ...route.points.map(mapPointToDomain),
-  ];
+  const depotDomainPoint = mapPointToDomain(route.depotPoint);
+  const domainPoints = route.points.map(mapPointToDomain);
+  const allDomainPoints = [depotDomainPoint, ...domainPoints];
 
   const depotIndex = 0;
 
@@ -42,5 +39,10 @@ export async function runOptimizationService(
     vehicleCount: route.vehicleCount,
   });
 
-  return { dto: optimizeRouteDto(solution, allDomainPoints), solution };
+  return {
+    dto: optimizeRouteDto(solution, allDomainPoints),
+    solution,
+    domainPoints,
+    depotDomainPoint,
+  };
 }
