@@ -3,27 +3,18 @@
 import { useEffect, useRef } from "react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
-
-type Stop = {
-  id: string;
-  name?: string | null;
-  latitude: number;
-  longitude: number;
-};
-
-type VehicleRoute = {
-  vehicleIndex: number;
-  stops: Stop[];
-};
+import { addDepotMarker } from "./helpers/addDepotMarker";
+import { addVehicleMarkers } from "./helpers/addVehicleMarkers";
+import { Stop, VehicleRoute } from "./types";
+import { addVehicleRoute } from "./helpers/addVehicleRoute";
 
 type Props = {
   depot: Stop;
   vehicleRoutes: VehicleRoute[];
+  returnToDepot: boolean;
 };
 
-const VEHICLE_COLORS = ["#e74c3c", "#3498db", "#2ecc71", "#f39c12", "#9b59b6"];
-
-export default function RouteMap({ depot, vehicleRoutes }: Props) {
+export default function RouteMap({ depot, vehicleRoutes, returnToDepot }: Props) {
   const mapRef = useRef<L.Map | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -39,40 +30,12 @@ export default function RouteMap({ depot, vehicleRoutes }: Props) {
       attribution: "© OpenStreetMap contributors",
     }).addTo(map);
 
-    
-    const depotIcon = L.divIcon({
-      className: "",
-      html: `<div style="background:#1a1a2e;color:white;padding:4px 8px;border-radius:4px;font-size:12px;font-weight:bold;">D</div>`,
-    });
-    L.marker([depot.latitude, depot.longitude], { icon: depotIcon })
-      .addTo(map)
-      .bindPopup(`<b>Depot</b><br>${depot.name ?? ""}`);
+    addDepotMarker(depot, map);
 
-  
-    vehicleRoutes.forEach((vr) => {
-      const color = VEHICLE_COLORS[vr.vehicleIndex % VEHICLE_COLORS.length];
+    addVehicleMarkers(map, vehicleRoutes);
 
-      vr.stops.forEach((stop, index) => {
-        const icon = L.divIcon({
-          className: "",
-          html: `<div style="background:${color};color:white;padding:4px 8px;border-radius:50%;font-size:12px;font-weight:bold;width:28px;height:28px;display:flex;align-items:center;justify-content:center;">${index + 1}</div>`,
-        });
-
-        L.marker([stop.latitude, stop.longitude], { icon })
-          .addTo(map)
-          .bindPopup(
-            `<b>${stop.name ?? "Point"}</b><br>Pojazd ${vr.vehicleIndex + 1}, stop ${index + 1}`,
-          );
-      });
-
-      
-      const latlngs: L.LatLngExpression[] = [
-        [depot.latitude, depot.longitude],
-        ...vr.stops.map((s) => [s.latitude, s.longitude] as L.LatLngExpression),
-        [depot.latitude, depot.longitude],
-      ];
-
-      L.polyline(latlngs, { color, weight: 3, opacity: 0.7 }).addTo(map);
+    vehicleRoutes.forEach(async (vr) => {
+      addVehicleRoute(map, vr, returnToDepot, depot);
     });
 
     mapRef.current = map;

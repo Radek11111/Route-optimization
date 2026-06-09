@@ -51,7 +51,11 @@ export default async function MapPage({
 
   return (
     <div style={{ height: "100vh", width: "100vw" }}>
-      <RouteMap depot={depot} vehicleRoutes={vehicleRoutes} />
+      <RouteMap
+        depot={depot}
+        vehicleRoutes={vehicleRoutes}
+        returnToDepot={solution.route.returnToDepot}
+      />
     </div>
   );
 }
