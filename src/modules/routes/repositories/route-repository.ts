@@ -29,7 +29,11 @@ export async function getRoutesByUserId(userId: string) {
     },
 
     include: {
-      points: true,
+      _count: {
+        select: {
+          points: true,
+        },
+      },
     },
     orderBy: {
       createdAt: "desc",
