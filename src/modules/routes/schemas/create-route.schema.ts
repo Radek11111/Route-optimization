@@ -11,7 +11,7 @@ export const createRouteSchema = z.object({
   maxWorkDurationMinutes: z.number().int().min(0),
   breakAfterMinutes: z.number().int().optional(),
   breakDurationMinutes: z.number().int().optional(),
-  returnToDepot: z.boolean().default(false),
+  returnToDepot: z.boolean(),
 });
 
 export type CreateRouteInput = z.infer<typeof createRouteSchema>;

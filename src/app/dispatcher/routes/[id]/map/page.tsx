@@ -1,5 +1,4 @@
-import { RouteMap } from "@/components/map/RouteMapWrapper";
-
+import { RouteMap } from "@/features/routes/components/map/RouteMapWrapper";
 import prisma from "@/lib/prisma";
 import { notFound } from "next/navigation";
 

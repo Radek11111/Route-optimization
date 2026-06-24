@@ -1,3 +1,4 @@
+import { Route } from "@/types/Route";
 import { useQuery } from "@tanstack/react-query";
 
 async function fetchRoutes(): Promise<Route[]> {

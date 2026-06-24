@@ -1,4 +1,4 @@
-type Route = {
+export type Route = {
   id: string;
   name: string | null;
   description: string | null;
