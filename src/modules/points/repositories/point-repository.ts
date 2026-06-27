@@ -19,3 +19,10 @@ export async function createPoint(input: Input) {
     },
   });
 }
+
+export async function getPointsByRouteId(routeId: string) {
+  return prisma.point.findMany({
+    where: { routeId },
+    orderBy: { createdAt: "asc" },
+  });
+}
