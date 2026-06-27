@@ -34,7 +34,7 @@ export function RouteForm() {
   function onSubmit(data: CreateRouteInput) {
     mutate(data, {
       onSuccess: (response) => {
-        router.push(`/dispatcher/routes/${response.data.id}`);
+        router.push(`/dispatcher/routes/${response.data.id}/routeDetails`);
       },
     });
   }

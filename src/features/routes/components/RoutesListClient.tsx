@@ -64,7 +64,7 @@ export function RoutesListClient() {
                 <td className="px-4 py-3">
                   <Button variant="ghost" size="sm">
                     <Link
-                      href={`/dispatcher/routes/${route.id}`}
+                      href={`/dispatcher/routes/${route.id}/routeDetails`}
                       className="text-sm font-medium text-primary hover:underline"
                     >
                       Szczegóły
