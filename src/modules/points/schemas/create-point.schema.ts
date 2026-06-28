@@ -7,9 +7,9 @@ export const createPointSchema = z.object({
 
   longitude: z.number().min(-180).max(180),
 
-  serviceTimeMinutes: z.number().int().min(0).default(0),
+  serviceTimeMinutes: z.number().int().min(0),
 
-  priority: z.number().int().min(1).max(10).default(1),
+  priority: z.number().int().min(1).max(10),
 
   timeWindowStart: z.number().int().min(0).max(1440).optional(),
   timeWindowEnd: z.number().int().min(0).max(1440).optional(),

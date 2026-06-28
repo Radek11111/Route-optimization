@@ -7,6 +7,8 @@ async function createPoint(routeId: string, input: CreatePointInput) {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(input),
   });
+  if (!response.ok) throw new Error("Failed to create point");
+  return response.json();
 }
 
 export function useCreatePoint(routeId: string) {

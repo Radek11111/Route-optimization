@@ -1,38 +1,57 @@
 "use client";
 
 import { useForm } from "react-hook-form";
-import { useCreatePoint } from "../api/useCreatePoint";
-import { CreatePointInput } from "@/types/CreatePoint";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { createPointSchema } from "@/modules/points/schemas/create-point.schema";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "./ui/button";
+import { useSetDepot } from "../api/useSetDepot";
+import { z } from "zod";
+import { useCreatePoint } from "../api/useCreatePoint";
 
 type Props = {
   routeId: string;
 };
 
+const pointFormSchema = createPointSchema.extend({
+  isDepot: z.boolean(),
+});
+
+type PointFormValues = z.infer<typeof pointFormSchema>;
+
 export function PointForm({ routeId }: Props) {
-  const { mutate, isPending, isError } = useCreatePoint(routeId);
+  const { mutateAsync, isPending, isError } = useCreatePoint(routeId);
 
   const {
     register,
     handleSubmit,
     reset,
     formState: { errors },
-  } = useForm<CreatePointInput>({
-    resolver: zodResolver(createPointSchema),
+  } = useForm<PointFormValues>({
+    resolver: zodResolver(pointFormSchema),
     defaultValues: {
       serviceTimeMinutes: 0,
       priority: 1,
+      isDepot: false,
     },
   });
 
-  function onSubmit(data: CreatePointInput) {
-    mutate(data, {
-      onSuccess: () => reset(),
-    });
+  const { mutate: setDepot } = useSetDepot(routeId);
+
+  async function onSubmit(data: PointFormValues) {
+    const { isDepot, ...pointData } = data;
+
+    try {
+      const response = await mutateAsync(pointData);
+
+      if (isDepot) {
+        setDepot(response.data.id);
+      }
+      reset();
+    } catch (error) {
+      console.error("Error adding point:", error);
+    }
   }
 
   return (
@@ -101,6 +120,10 @@ export function PointForm({ routeId }: Props) {
           {errors.priority && (
             <p className="text-sm text-red-500">{errors.priority.message}</p>
           )}
+        </div>
+        <div className="flex items-center gap-2">
+          <input id="isDepot" type="checkbox" {...register("isDepot")} />
+          <Label htmlFor="isDepot">Ustaw jako depot ( baza )</Label>
         </div>
       </div>
 
