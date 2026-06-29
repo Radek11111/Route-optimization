@@ -57,7 +57,7 @@ export function PointForm({ routeId }: Props) {
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
       <div className="space-y-2">
-        <Label htmlFor="name">Nazwa punltu</Label>
+        <Label htmlFor="name">Nazwa puntu</Label>
         <Input id="name" {...register("name")} placeholder="Klient A" />
         {errors.name && (
           <p className="text-sm text-red-500">{errors.name.message}</p>
