@@ -40,3 +40,13 @@ export async function getRoutesByUserId(userId: string) {
     },
   });
 }
+
+export async function getRouteById(routeId: string) {
+  return prisma.route.findUnique({
+    where: { id: routeId },
+    include: {
+      depotPoint: true,
+      _count: { select: { points: true } },
+    },
+  });
+}

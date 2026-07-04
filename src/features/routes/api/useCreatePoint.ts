@@ -2,6 +2,7 @@ import { CreatePointInput } from "@/types/CreatePoint";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 async function createPoint(routeId: string, input: CreatePointInput) {
+  console.log("useCreatePoint routeId:", routeId);
   const response = await fetch(`/api/routes/${routeId}/points`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },

@@ -1,11 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { useOptimize } from "../api/useOptimize";
+
 import { PointForm } from "./PointForm";
 import { PointsListClient } from "./PointsListClient";
 import { SolutionPanel } from "./SolutionPanel";
-import { RouteMap} from "../components/map/RouteMapWrapper";
+import { useOptimize } from "../api/useOptimize";
+import { RouteMapWrapper } from "./map/RouteMapWrapper";
 
 type Mode = "EDIT" | "SOLUTION";
 
@@ -64,7 +65,8 @@ export function RouteDetailPage({ routeId }: Props) {
 
       {/* MAPA */}
       <div className="flex-1">
-             </div>
+        <RouteMapWrapper routeId={routeId} mode={mode} />
+      </div>
     </div>
   );
 }

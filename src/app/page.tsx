@@ -1,9 +1,9 @@
-
+import { RoutesListClient } from "@/features/routes/components/RoutesListClient";
 
 export default function Home() {
   return (
-  <div className="">
-    <p>hello</p>
-  </div>
+    <div className="">
+      <RoutesListClient />
+    </div>
   );
 }

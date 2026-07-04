@@ -1,7 +1,6 @@
 "use client";
-
-import { useOptimize } from "../api/useOptimize";
 import { useRouter } from "next/navigation";
+import { useOptimize } from "../api/useOptimize";
 
 type Props = {
   routeId: string;

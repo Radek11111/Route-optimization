@@ -1,13 +1,12 @@
 "use client";
 
-
 import Link from "next/link";
 import { Plus } from "lucide-react";
-import { useRoute } from "../api/useRoute";
 import { Button } from "./ui/button";
+import { useRoutes } from "../api/useRoutes";
 
 export function RoutesListClient() {
-  const { data: routes, isLoading, isError } = useRoute();
+    const { data: routes, isLoading, isError } = useRoutes();
 
   if (isLoading) return <div className="p-8">Ładowanie tras...</div>;
   if (isError)
@@ -41,7 +40,7 @@ export function RoutesListClient() {
             </tr>
           </thead>
           <tbody>
-            {routes?.map((route) => (
+            {routes?.map((route: any) => (
               <tr
                 key={route.id}
                 className="border-b hover:bg-muted/30 transition-colors"
@@ -64,7 +63,7 @@ export function RoutesListClient() {
                 <td className="px-4 py-3">
                   <Button variant="ghost" size="sm">
                     <Link
-                      href={`/dispatcher/routes/${route.id}/routeDetails`}
+                      href={`/dispatcher/routes/${route.id}`}
                       className="text-sm font-medium text-primary hover:underline"
                     >
                       Szczegóły
