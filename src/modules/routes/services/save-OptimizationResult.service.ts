@@ -7,6 +7,15 @@ export async function saveOptimizationResultService(
   solution: Solution,
   points: Point[],
   depotPoint: Point,
+  totalDistanceKm?: number,
+  estimatedPrice?: number | null,
 ) {
-  return saveFullSolution({ routeId, solution, points, depotPoint });
+  return saveFullSolution({
+    routeId,
+    solution,
+    points,
+    depotPoint,
+    totalDistanceKm,
+    estimatedPrice,
+  });
 }

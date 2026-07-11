@@ -16,13 +16,15 @@ export async function POST(
 
     const matrixProvider = createMatrixProvider();
 
-    const { dto, solution, domainPoints, depotDomainPoint } =
+    const { dto, solution, domainPoints, depotDomainPoint , totalDistanceKm, estimatedPrice } =
       await runOptimizationService(id, matrixProvider);
     await saveOptimizationResultService(
       id,
       solution,
       domainPoints,
       depotDomainPoint,
+      totalDistanceKm,
+      estimatedPrice,
     );
     return NextResponse.json({
       success: true,

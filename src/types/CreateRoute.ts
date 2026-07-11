@@ -8,4 +8,6 @@ export type CreateRouteInput = {
   breakAfterMinutes?: number;
   breakDurationMinutes?: number;
   returnToDepot: boolean;
+  ratePerKm?: number;
+  estimatedPrice?: number;
 };

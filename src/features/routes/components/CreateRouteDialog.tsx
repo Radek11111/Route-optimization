@@ -48,6 +48,7 @@ export function CreateRouteDialog() {
       workEndMinutes: 1020,
       maxWorkDurationMinutes: 480,
       returnToDepot: false,
+      ratePerKm: undefined,
     },
   });
 
@@ -120,6 +121,16 @@ export function CreateRouteDialog() {
               type="number"
               min={0}
               {...register("maxWorkDurationMinutes", { valueAsNumber: true })}
+            />
+          </div>
+          <div className="space-y-2">
+            <Label>Stawka za km (zł)</Label>
+            <Input
+              type="number"
+              step="0.01"
+              min={0}
+              {...register("ratePerKm", { valueAsNumber: true })}
+              placeholder="np. 2.50"
             />
           </div>
           <div className="flex items-center gap-2">

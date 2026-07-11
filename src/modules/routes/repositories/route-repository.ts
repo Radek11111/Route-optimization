@@ -18,6 +18,8 @@ export async function createRoute(input: Input) {
       breakAfterMinutes: input.breakAfterMinutes,
       breakDurationMinutes: input.breakDurationMinutes,
       returnToDepot: input.returnToDepot,
+      ratePerKm: input.ratePerKm,
+      estimatedPrice: input.estimatedPrice,
     },
   });
 }

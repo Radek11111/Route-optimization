@@ -26,8 +26,17 @@ export async function saveFullSolution(data: {
   solution: Solution;
   points: Point[];
   depotPoint: Point;
+  totalDistanceKm?: number;
+  estimatedPrice?: number | null;
 }) {
-  const { routeId, solution, points, depotPoint } = data;
+  const {
+    routeId,
+    solution,
+    points,
+    depotPoint,
+    totalDistanceKm,
+    estimatedPrice,
+  } = data;
 
   const allPoints = [depotPoint, ...points];
   return prisma.$transaction(async (tx) => {
@@ -38,6 +47,8 @@ export async function saveFullSolution(data: {
         routeId,
         totalCost: solution.totalCost,
         feasible: solution.feasible,
+        totalDistanceKm,
+        estimatedPrice,
         status: "COMPLETED",
       },
     });

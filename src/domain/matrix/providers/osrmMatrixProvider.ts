@@ -20,7 +20,7 @@ export function OsrmMatrixProvider(baseUrl: string): MatrixProvider {
         .join(";");
 
       const url = `${baseUrl}/table/v1/driving/${coordinates}?annotations=duration,distance`;
-      console.log("OSRM URL:", url);
+     
       const response = await fetch(url);
 
       if (!response.ok) {
