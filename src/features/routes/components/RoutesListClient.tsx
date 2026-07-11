@@ -1,12 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import { Plus } from "lucide-react";
-import { Button } from "./ui/button";
+
+
 import { useRoutes } from "../api/useRoutes";
+import { CreateRouteDialog } from "./CreateRouteDialog";
+import { Button } from "@/components/ui/button";
 
 export function RoutesListClient() {
-    const { data: routes, isLoading, isError } = useRoutes();
+  const { data: routes, isLoading, isError } = useRoutes();
 
   if (isLoading) return <div className="p-8">Ładowanie tras...</div>;
   if (isError)
@@ -16,15 +18,8 @@ export function RoutesListClient() {
     <div className="p-8">
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-bold">Trasy</h1>
-        <button>
-          <Link
-            href="/dispatcher/routes/new"
-            className="inline-flex items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
-          >
-            <Plus className="mr-2 h-4 w-4" />
-            Nowa trasa
-          </Link>
-        </button>
+
+        <CreateRouteDialog />
       </div>
 
       <div className="rounded-md border">
@@ -60,6 +55,7 @@ export function RoutesListClient() {
                 <td className="px-4 py-3">
                   {new Date(route.createdAt).toLocaleDateString()}
                 </td>
+                
                 <td className="px-4 py-3">
                   <Button variant="ghost" size="sm">
                     <Link

@@ -4,6 +4,7 @@ import { mapConstraintsToDomain } from "@/modules/optimization/mappers/mapConstr
 import { mapPointToDomain } from "@/modules/optimization/mappers/mapPointToDomain";
 import { getRouteForOptimization } from "../../optimization/repositories/optimization-repository";
 import { optimizeRouteDto } from "@/modules/optimization/dto/optimizeRoute.dto";
+import { sumSolutionDistance } from "@/features/solutions/sumSolutionDistance";
 
 export async function runOptimizationService(
   routeId: string,
@@ -29,20 +30,42 @@ export async function runOptimizationService(
 
   const depotIndex = 0;
 
+  const constraints = mapConstraintsToDomain(route);
+
   const matrix = await matrixProvider.getMatrix(allDomainPoints);
 
   const solution = multiStartSolver({
-    matrix,
+    matrix: matrix.durationMatrix,
     points: allDomainPoints,
-    constraints: mapConstraintsToDomain(route),
+    constraints,
     depotIndex,
     vehicleCount: route.vehicleCount,
   });
 
+  const totalDistanceMeters = sumSolutionDistance(
+    solution,
+    matrix.distanceMatrix,
+    depotIndex,
+    constraints,
+  );
+
+  const totalDistanceKm = totalDistanceMeters / 1000;
+
+  const estimatedPrice = route.ratePerKm
+    ? totalDistanceKm * route.ratePerKm
+    : null;
+
   return {
-    dto: optimizeRouteDto(solution, allDomainPoints),
+    dto: optimizeRouteDto(
+      solution,
+      allDomainPoints,
+      totalDistanceKm,
+      estimatedPrice,
+    ),
     solution,
     domainPoints,
     depotDomainPoint,
+    totalDistanceKm,
+    estimatedPrice,
   };
 }

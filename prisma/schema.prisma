@@ -71,6 +71,8 @@ model Route {
   breakDurationMinutes   Int?
   returnToDepot          Boolean @default(false)
 
+  ratePerKm Float?
+
   @@index([userId])
    @@index([depotPointId])
 }
@@ -127,6 +129,9 @@ model Solution {
  vehicleRoutes VehicleRoute[]
 
  updatedAt DateTime @updatedAt
+
+ totalDistanceKm Float?
+          estimatedPrice  Float?
 
  unassignedPoints UnassignedPoint[]
  @@index([routeId, createdAt])

@@ -12,11 +12,15 @@ export type OptimalizationResponseDto = {
   }[];
   totalCost: number;
   feasible: boolean;
+  totalDistanceKm: number;
+  estimatedPrice: number | null;
 };
 
 export function optimizeRouteDto(
   solution: Solution,
   points: Point[],
+  totalDistanceKm: number,
+  estimatedPrice: number | null,
 ): OptimalizationResponseDto {
   return {
     routes: solution.routes.map((route) =>
@@ -31,5 +35,7 @@ export function optimizeRouteDto(
     })),
     totalCost: solution.totalCost,
     feasible: solution.feasible,
+    totalDistanceKm,
+    estimatedPrice,
   };
 }
