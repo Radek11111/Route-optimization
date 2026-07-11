@@ -5,10 +5,11 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { createPointSchema } from "@/modules/points/schemas/create-point.schema";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { Button } from "./ui/button";
+
 import { useSetDepot } from "../api/useSetDepot";
 import { z } from "zod";
 import { useCreatePoint } from "../api/useCreatePoint";
+import { Button } from "@/components/ui/button";
 
 type Props = {
   routeId: string;

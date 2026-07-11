@@ -19,8 +19,8 @@ export function OsrmMatrixProvider(baseUrl: string): MatrixProvider {
         .map((point) => `${point.longitude},${point.latitude}`)
         .join(";");
 
-      const url = `${baseUrl}/table/v1/driving/${coordinates}?annotations=duration, distance`;
-
+      const url = `${baseUrl}/table/v1/driving/${coordinates}?annotations=duration,distance`;
+      console.log("OSRM URL:", url);
       const response = await fetch(url);
 
       if (!response.ok) {
