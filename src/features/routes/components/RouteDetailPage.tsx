@@ -7,6 +7,7 @@ import { PointsListClient } from "./PointsListClient";
 import { SolutionPanel } from "./SolutionPanel";
 import { useOptimize } from "../api/useOptimize";
 import { RouteMapWrapper } from "./map/RouteMapWrapper";
+import { SolutionStatsBar } from "./SolutionStatsBar";
 
 type Mode = "EDIT" | "SOLUTION";
 
@@ -62,10 +63,15 @@ export function RouteDetailPage({ routeId }: Props) {
           </div>
         )}
       </div>
+      {/* PRAWA STRONA */}
+      <div className="flex-1 flex flex-col">
+        {/* MAPA */}
+        <div className="flex-1">
+          <RouteMapWrapper routeId={routeId} mode={mode} />
+        </div>
 
-      {/* MAPA */}
-      <div className="flex-1">
-        <RouteMapWrapper routeId={routeId} mode={mode} />
+        {/* PASEK POD MAPĄ */}
+        {mode === "SOLUTION" && <SolutionStatsBar routeId={routeId} />}
       </div>
     </div>
   );
