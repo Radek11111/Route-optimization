@@ -10,7 +10,8 @@ import {
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { Button } from "./ui/button";
+import { Button } from "@/components/ui/button";
+
 
 export function RouteForm() {
   const router = useRouter();
