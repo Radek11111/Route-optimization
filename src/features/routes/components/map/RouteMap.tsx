@@ -14,9 +14,15 @@ type Props = {
   returnToDepot: boolean;
 };
 
-export default function RouteMap({ depot, vehicleRoutes, returnToDepot }: Props) {
+export default function RouteMap({
+  depot,
+  vehicleRoutes,
+  returnToDepot,
+}: Props) {
   const mapRef = useRef<L.Map | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+
+  
 
   useEffect(() => {
     if (!containerRef.current || mapRef.current) return;
@@ -31,19 +37,23 @@ export default function RouteMap({ depot, vehicleRoutes, returnToDepot }: Props)
     }).addTo(map);
 
     addDepotMarker(depot, map);
-
     addVehicleMarkers(map, vehicleRoutes);
 
-    vehicleRoutes.forEach(async (vr) => {
-      addVehicleRoute(map, vr, returnToDepot, depot);
-    });
+    const drawRoutes = async () => {
+      for (const vr of vehicleRoutes) {
+        await addVehicleRoute(map, vr, returnToDepot, depot);
+      }
+    };
+
+    drawRoutes().catch(console.error);
 
     mapRef.current = map;
+
     return () => {
       map.remove();
       mapRef.current = null;
     };
-  }, [depot, vehicleRoutes]);
+  }, [depot, vehicleRoutes, returnToDepot]);
 
   return <div ref={containerRef} style={{ height: "100%", width: "100%" }} />;
 }

@@ -19,7 +19,6 @@ export async function createRoute(input: Input) {
       breakDurationMinutes: input.breakDurationMinutes,
       returnToDepot: input.returnToDepot,
       ratePerKm: input.ratePerKm,
-      estimatedPrice: input.estimatedPrice,
     },
   });
 }
@@ -49,6 +48,27 @@ export async function getRouteById(routeId: string) {
     include: {
       depotPoint: true,
       _count: { select: { points: true } },
+    },
+  });
+}
+
+export async function updateRoute(
+  routeId: string,
+  data: Partial<CreateRouteInput>,
+) {
+  return prisma.route.update({
+    where: { id: routeId },
+    data: {
+      name: data.name,
+      description: data.description,
+      vehicleCount: data.vehicleCount,
+      workStartMinutes: data.workStartMinutes,
+      workEndMinutes: data.workEndMinutes,
+      maxWorkDurationMinutes: data.maxWorkDurationMinutes,
+      breakAfterMinutes: data.breakAfterMinutes,
+      breakDurationMinutes: data.breakDurationMinutes,
+      returnToDepot: data.returnToDepot,
+      ratePerKm: data.ratePerKm,
     },
   });
 }

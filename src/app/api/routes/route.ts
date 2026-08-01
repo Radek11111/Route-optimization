@@ -1,4 +1,4 @@
-import { getRoutesByUserId } from "@/modules/routes/repositories/route-repository";
+import { getRoutesByUserId, updateRoute } from "@/modules/routes/repositories/route-repository";
 import { createRouteSchema } from "@/modules/routes/schemas/create-route.schema";
 import { createRouteService } from "@/modules/routes/services/create-route.service";
 import { errorResponse, successResponse } from "@/shared/utils/api-response";
@@ -32,3 +32,5 @@ export async function GET() {
     return errorResponse("Failed to fetch routes", 500);
   }
 }
+
+

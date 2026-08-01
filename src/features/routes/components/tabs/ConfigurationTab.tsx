@@ -2,6 +2,7 @@
 
 import React from "react";
 import { useRoute } from "../../api/useRoute";
+import { ConfigRouteDialog } from "../ConfigRouteDialog";
 
 type Props = {
   routeId: string;
@@ -75,9 +76,9 @@ export function ConfigurationTab({ routeId }: Props) {
       <Section title="Depot" />
       <Row label="Adres" value={route.depotPoint?.name ?? "Nie ustawiony"} />
 
-      <button className="mt-4 w-full rounded-md border px-4 py-2 text-sm font-medium hover:bg-muted">
-        ✎ Edytuj konfigurację ↗
-      </button>
+      <div className="mt-4 w-full rounded-md border px-4 py-2 text-sm font-medium hover:bg-muted">
+        <ConfigRouteDialog routeId={routeId} />
+      </div>
     </div>
   );
 }
