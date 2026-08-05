@@ -9,6 +9,9 @@ export async function saveOptimizationResultService(
   depotPoint: Point,
   totalDistanceKm?: number,
   estimatedPrice?: number | null,
+  naiveDistanceKm?: number,
+  savedDistanceKm?: number,
+  savedPercent?: number,
 ) {
   return saveFullSolution({
     routeId,
@@ -17,5 +20,8 @@ export async function saveOptimizationResultService(
     depotPoint,
     totalDistanceKm,
     estimatedPrice,
+    naiveDistanceKm,
+    savedDistanceKm,
+    savedPercent,
   });
 }

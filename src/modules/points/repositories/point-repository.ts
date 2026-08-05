@@ -26,3 +26,9 @@ export async function getPointsByRouteId(routeId: string) {
     orderBy: { createdAt: "asc" },
   });
 }
+
+export async function deletePoint(pointId: string) {
+  return prisma.point.delete({
+    where: { id: pointId },
+  });
+}
