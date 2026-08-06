@@ -122,6 +122,10 @@ model Solution {
   returnToDepotPenalty Float @default(0)
   priorityPenalty Float @default(0)
 
+  naiveDistanceKm Float?
+  savedDistanceKm Float?
+  savedPercent Int?
+
   routeId    String 
   route      Route  @relation(fields: [routeId], references: [id], onDelete: Cascade)
 

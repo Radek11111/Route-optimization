@@ -13,6 +13,10 @@ export async function addVehicleRoute(
     vehicleRoute.vehicleIndex % VEHICLE_COLORS.length
   ],
 ) {
+  if (!vehicleRoute.stops || vehicleRoute.stops.length === 0) {
+    return;
+  }
+
   const coordinates: [number, number][] = [
     [depot.longitude, depot.latitude],
 
@@ -25,35 +29,43 @@ export async function addVehicleRoute(
       : []),
   ];
 
+  const fallbackLatLngs: L.LatLngExpression[] = [
+    [depot.latitude, depot.longitude],
+    ...vehicleRoute.stops
+      .filter((s) => s.latitude !== undefined && s.longitude !== undefined)
+      .map((s) => [s.latitude, s.longitude] as L.LatLngExpression),
+    ...(returnToDepot
+      ? [[depot.latitude, depot.longitude] as L.LatLngExpression]
+      : []),
+  ];
+
   try {
     const geometry = await getRouteGeometry(coordinates);
 
-    const latlngs: L.LatLngExpression[] = geometry.map(([lon, lat]) => [
-      lat,
+    
 
-      lon,
-    ]);
+    const latlngs: L.LatLngExpression[] = geometry
+      .filter(([lon, lat]) => lon !== undefined && lat !== undefined)
+      .map(([lon, lat]) => [lat, lon]);
 
-    L.polyline(latlngs, { color, weight: 3, opacity: 0.7 }).addTo(map);
+    if (latlngs.length > 0) {
+      L.polyline(latlngs, { color, weight: 3, opacity: 0.7 }).addTo(map);
+    }
   } catch (error) {
-    const latlngs: L.LatLngExpression[] = [
-      [depot.latitude, depot.longitude],
+    console.warn(
+      `Błąd OSRM dla pojazdu ${vehicleRoute.vehicleIndex}, rysuję linię prostą.`,
+      error,
+    );
 
-      ...vehicleRoute.stops.map(
-        (s) => [s.latitude, s.longitude] as L.LatLngExpression,
-      ),
+    if (!map.getContainer()) return;
 
-      [depot.latitude, depot.longitude],
-    ];
-
-    L.polyline(latlngs, {
-      color,
-
-      weight: 3,
-
-      opacity: 0.5,
-
-      dashArray: "6",
-    }).addTo(map);
+    if (fallbackLatLngs.length >= 2) {
+      L.polyline(fallbackLatLngs, {
+        color,
+        weight: 3,
+        opacity: 0.5,
+        dashArray: "6",
+      }).addTo(map);
+    }
   }
 }

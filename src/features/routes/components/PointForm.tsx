@@ -5,11 +5,12 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { createPointSchema } from "@/modules/points/schemas/create-point.schema";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-
+import { Button } from "@/components/ui/button";
 import { useSetDepot } from "../api/useSetDepot";
 import { z } from "zod";
 import { useCreatePoint } from "../api/useCreatePoint";
-import { Button } from "@/components/ui/button";
+import { useAddressSearch } from "../api/useAddressSearch";
+import { useState } from "react";
 
 type Props = {
   routeId: string;
@@ -23,11 +24,16 @@ type PointFormValues = z.infer<typeof pointFormSchema>;
 
 export function PointForm({ routeId }: Props) {
   const { mutateAsync, isPending, isError } = useCreatePoint(routeId);
+  const { mutate: setDepot } = useSetDepot(routeId);
+  const { query, setQuery, results, isLoading, setResults } =
+    useAddressSearch();
+  const [selectedAddress, setSelectedAddress] = useState<string>("");
 
   const {
     register,
     handleSubmit,
     reset,
+    setValue,
     formState: { errors },
   } = useForm<PointFormValues>({
     resolver: zodResolver(pointFormSchema),
@@ -38,18 +44,25 @@ export function PointForm({ routeId }: Props) {
     },
   });
 
-  const { mutate: setDepot } = useSetDepot(routeId);
+  function handleSelectAddress(result: {
+    display_name: string;
+    lat: string;
+    lon: string;
+  }) {
+    setValue("latitude", parseFloat(result.lat));
+    setValue("longitude", parseFloat(result.lon));
+    setSelectedAddress(result.display_name);
+    setQuery("");
+    setResults([]);
+  }
 
   async function onSubmit(data: PointFormValues) {
     const { isDepot, ...pointData } = data;
-
     try {
       const response = await mutateAsync(pointData);
-
-      if (isDepot) {
-        setDepot(response.data.id);
-      }
+      if (isDepot) setDepot(response.data.id);
       reset();
+      setSelectedAddress("");
     } catch (error) {
       console.error("Error adding point:", error);
     }
@@ -58,74 +71,69 @@ export function PointForm({ routeId }: Props) {
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
       <div className="space-y-2">
-        <Label htmlFor="name">Nazwa puntu</Label>
-        <Input id="name" {...register("name")} placeholder="Klient A" />
+        <Label>Nazwa punktu</Label>
+        <Input {...register("name")} placeholder="np. Klient A" />
         {errors.name && (
           <p className="text-sm text-red-500">{errors.name.message}</p>
         )}
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
-        <div className="space-y-2">
-          <Label htmlFor="latitude">Szerokosc geograficzna</Label>
-          <Input
-            id="latitude"
-            type="number"
-            step="any"
-            {...register("latitude", { valueAsNumber: true })}
-            placeholder="52.2297"
-          />
-          {errors.latitude && (
-            <p className="text-sm text-red-500">{errors.latitude.message}</p>
-          )}
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="longitude">Długość geograficzna</Label>
-          <Input
-            id="longitude"
-            type="number"
-            step="any"
-            {...register("longitude", { valueAsNumber: true })}
-            placeholder="21.0122"
-          />
-          {errors.longitude && (
-            <p className="text-sm text-red-500">{errors.longitude.message}</p>
-          )}
-        </div>
+
+      <div className="space-y-2 relative">
+        <Label>Adres</Label>
+        <Input
+          value={selectedAddress || query}
+          onChange={(e) => {
+            setSelectedAddress("");
+            setQuery(e.target.value);
+          }}
+          placeholder="np. ul. Marszałkowska 1, Warszawa"
+        />
+        {isLoading && (
+          <p className="text-xs text-muted-foreground">Szukanie...</p>
+        )}
+        {results.length > 0 && (
+          <div className="absolute z-50 w-full bg-background border rounded-md shadow-lg mt-1">
+            {results.map((result) => (
+              <button
+                key={result.place_id}
+                type="button"
+                onClick={() => handleSelectAddress(result)}
+                className="w-full text-left px-3 py-2 text-sm hover:bg-muted border-b last:border-0 truncate"
+              >
+                {result.display_name}
+              </button>
+            ))}
+          </div>
+        )}
+        {errors.latitude && (
+          <p className="text-sm text-red-500">Wybierz adres z listy</p>
+        )}
       </div>
 
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
-          <Label htmlFor="serviceTimeMinutes">Czas obsługi (min)</Label>
+          <Label>Czas obsługi (min)</Label>
           <Input
-            id="serviceTimeMinutes"
             type="number"
             min={0}
             {...register("serviceTimeMinutes", { valueAsNumber: true })}
           />
-          {errors.serviceTimeMinutes && (
-            <p className="text-sm text-red-500">
-              {errors.serviceTimeMinutes.message}
-            </p>
-          )}
         </div>
         <div className="space-y-2">
-          <Label htmlFor="priority">Priorytet (1-10)</Label>
+          <Label>Priorytet (1-10)</Label>
           <Input
-            id="priority"
             type="number"
             min={1}
             max={10}
             {...register("priority", { valueAsNumber: true })}
           />
-          {errors.priority && (
-            <p className="text-sm text-red-500">{errors.priority.message}</p>
-          )}
         </div>
-        <div className="flex items-center gap-2">
-          <input id="isDepot" type="checkbox" {...register("isDepot")} />
-          <Label htmlFor="isDepot">Ustaw jako depot ( baza )</Label>
-        </div>
+      </div>
+
+      <div className="flex items-center gap-2">
+        <input type="checkbox" id="isDepot" {...register("isDepot")} />
+        <Label htmlFor="isDepot">Ustaw jako depot (baza)</Label>
       </div>
 
       {isError && (

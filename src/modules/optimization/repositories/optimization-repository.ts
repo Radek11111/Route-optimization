@@ -28,6 +28,9 @@ export async function saveFullSolution(data: {
   depotPoint: Point;
   totalDistanceKm?: number;
   estimatedPrice?: number | null;
+  naiveDistanceKm?: number;
+  savedDistanceKm?: number;
+  savedPercent?: number;
 }) {
   const {
     routeId,
@@ -50,6 +53,9 @@ export async function saveFullSolution(data: {
         totalDistanceKm,
         estimatedPrice,
         status: "COMPLETED",
+        naiveDistanceKm: data.naiveDistanceKm,
+        savedDistanceKm: data.savedDistanceKm,
+        savedPercent: data.savedPercent,
       },
     });
 
