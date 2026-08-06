@@ -71,19 +71,7 @@ export async function runOptimizationService(
       ? Math.round((savedDistanceKm / naiveDistanceKm) * 100)
       : 0;
 
-      console.log("vehicleCount:", route.vehicleCount);
-      console.log("pointCount:", allDomainPoints.length);
-      console.log("naiveDistanceKm:", naiveDistanceKm);
-      console.log("totalDistanceKm:", totalDistanceKm);
-      console.log("savedDistanceKm:", savedDistanceKm);
-      console.log(
-        "naive routes:",
-        JSON.stringify(
-          naiveSolution(allDomainPoints.length, depotIndex).routes,
-        ),
-      );
-      console.log("optimized routes:", JSON.stringify(solution.routes));
-
+     
   return {
     dto: optimizeRouteDto(
       solution,

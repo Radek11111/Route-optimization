@@ -43,16 +43,4 @@ export async function GET(
   }
 }
 
-export async function DELETE(
-  request: Request,
-  { params }: { params: Promise<{ id: string }> },
-) {
-  try {
-    const { id } = await params;
-    const pointId = await deletePoint(id);
-    return successResponse({ pointId }, 200);
-  } catch (error) {
-    console.error("Error deleting point", error);
-    return errorResponse("Failed to delete point", 500);
-  }
-}
+

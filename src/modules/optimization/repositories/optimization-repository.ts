@@ -13,7 +13,7 @@ export async function getRouteForOptimization(routeId: string) {
       points: {
         where: {
           depotForRoutes: {
-            none: {},
+            is: null,
           },
         },
       },

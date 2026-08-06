@@ -14,7 +14,7 @@ function formatMinutes(minutes: number): string {
 
 export function SolutionStatsBar({ routeId }: Props) {
   const { data: solution } = useSolution(routeId);
-  console.log("SolutionStatsBar solution", solution);
+  
   
 
   if (!solution) return null;
