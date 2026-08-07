@@ -42,8 +42,6 @@ export async function addVehicleRoute(
   try {
     const geometry = await getRouteGeometry(coordinates);
 
-    
-
     const latlngs: L.LatLngExpression[] = geometry
       .filter(([lon, lat]) => lon !== undefined && lat !== undefined)
       .map(([lon, lat]) => [lat, lon]);
