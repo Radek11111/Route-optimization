@@ -1,4 +1,4 @@
-import { Constraints } from "@/domain/types/Constraints";
+import { Constraints, DrivingRules } from "@/domain/types/Constraints";
 import { Point } from "@/domain/types/Point";
 import { RouteSimulationState } from "@/domain/types/RouteSimulationState";
 import { finalizeSimulation } from "./finalizeSimulation";
@@ -22,6 +22,57 @@ export function simulateRoute(
   handleReturnToDepot(state, distanceMatrix, depotIndex, constraints, route);
   finalizeSimulation(state, constraints, depotIndex);
   return state;
+}
+
+function enforceDrivingBreak(
+  state: RouteSimulationState,
+  legDuration: number,
+  rules: DrivingRules | undefined,
+) {
+  if (!rules) return;
+
+  const wouldExceed =
+    state.continuousDrivingMinutes + legDuration >
+    rules.maxContinuousDrivingMinutes;
+
+  if (!wouldExceed) return;
+
+  state.currentTime += rules.drivingBreakMinutes;
+  state.totalDrivingRuleBreaks += rules.drivingBreakMinutes;
+  state.continuousDrivingMinutes = 0;
+}
+
+function enforceDailyRest(
+  state: RouteSimulationState,
+  legDuration: number,
+  rules: DrivingRules | undefined,
+) {
+  if (!rules) return;
+
+  const exceptionAvailable = state.exceptionsUsed < rules.maxExceptionsPerWeek;
+  const dailyLimit = exceptionAvailable
+    ? rules.maxDailyDrivingExceptionMinutes
+    : rules.maxDailyDrivingMinutes;
+
+  const wouldExceed = state.drivingSinceRestMinutes + legDuration > dailyLimit;
+
+  if (!wouldExceed) return;
+
+  const reducedRestAvailable =
+    state.reducedRestUsed < rules.maxReducedRestCount;
+
+  const restMinutes = reducedRestAvailable
+    ? rules.reducedDailyRestMinutes
+    : rules.regularDailyRestMinutes;
+
+  if (exceptionAvailable) state.exceptionsUsed++;
+  if (reducedRestAvailable) state.reducedRestUsed++;
+
+  state.currentTime += restMinutes;
+  state.totalDrivingRuleBreaks += restMinutes;
+
+  state.drivingSinceRestMinutes = 0;
+  state.continuousDrivingMinutes = 0;
 }
 
 function travelToPoint(
