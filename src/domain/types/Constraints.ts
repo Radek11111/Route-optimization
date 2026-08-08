@@ -10,4 +10,20 @@ export interface Constraints {
   };
 
   returnToDepot?: boolean;
+
+  drivingRules?: DrivingRules;
+}
+
+export interface DrivingRules {
+  maxContinuousDrivingMinutes: number;
+  drivingBreakMinutes: number;
+
+  splitBreak?: { first: number; second: number };
+
+  maxDailyDrivingMinutes: number;
+  maxDailyDrivingExceptionMinutes: number;
+  maxExceptionsPerWeek: number;
+  regularDailyRestMinutes: number;
+  reducedDailyRestMinutes: number;
+  maxReducedRestCount: number;
 }

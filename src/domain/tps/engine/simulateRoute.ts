@@ -13,6 +13,17 @@ export function simulateRoute(
 ) {
   for (const pointIndex of route) {
     const point = points[pointIndex];
+    const legDuration = distanceMatrix[state.lastPointIndex]?.[pointIndex];
+
+    if (legDuration === undefined) {
+      throw new Error(
+        `Matrix missing value ${state.lastPointIndex} -> ${pointIndex}`,
+      );
+    }
+
+    enforceDrivingBreak(state, legDuration, constraints.drivingRules);
+    enforceDailyRest(state, legDuration, constraints.drivingRules);
+
     travelToPoint(state, distanceMatrix, pointIndex);
     handleTimeWindow(state, point);
     applyServiceTime(state, point);
@@ -88,15 +99,18 @@ function travelToPoint(
   }
   state.totalTravelTime += travelTime;
   state.currentTime += travelTime;
+
+  state.continuousDrivingMinutes += travelTime;
+  state.drivingSinceRestMinutes += travelTime;
 }
 
 function handleTimeWindow(state: RouteSimulationState, point: Point) {
   if (!point.timeWindow) return;
 
-  const arrival = state.currentTime;
+  const arrival = state.currentTime % 1440;
 
   if (arrival < point.timeWindow.start) {
-    state.currentTime = point.timeWindow.start;
+    state.currentTime = point.timeWindow.start - arrival;
     return;
   }
   if (arrival > point.timeWindow.end) {
@@ -128,7 +142,15 @@ function handleReturnToDepot(
   if (state.lastPointIndex === depotIndex) return;
 
   const returnTime = matrix[state.lastPointIndex][depotIndex];
+
+  enforceDrivingBreak(state, returnTime, constraints.drivingRules);
+  enforceDailyRest(state, returnTime, constraints.drivingRules);
+  
   state.totalTravelTime += returnTime;
   state.currentTime += returnTime;
+
+  state.continuousDrivingMinutes += returnTime;
+  state.drivingSinceRestMinutes += returnTime;
+
   state.lastPointIndex = depotIndex;
 }
