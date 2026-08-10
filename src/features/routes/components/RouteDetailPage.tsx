@@ -26,9 +26,9 @@ export function RouteDetailPage({ routeId }: Props) {
   }
 
   const tabs: { key: Tab; label: string }[] = [
-    { key: "CONFIGURATION", label: "Configuration" },
-    { key: "POINTS", label: "Points" },
-    { key: "SOLUTION", label: "Solution" },
+    { key: "CONFIGURATION", label: "Konfiguracja" },
+    { key: "POINTS", label: "Punkty" },
+    { key: "SOLUTION", label: "Rozwiązanie" },
   ];
 
   return (
@@ -66,7 +66,7 @@ export function RouteDetailPage({ routeId }: Props) {
           ))}
         </div>
 
-        {/* ZAWARTOŚĆ ZAKŁADKI */}
+      
         <div className="flex-1 overflow-y-auto">
           {activeTab === "CONFIGURATION" && (
             <ConfigurationTab routeId={routeId} />

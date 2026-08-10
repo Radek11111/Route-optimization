@@ -1,21 +1,16 @@
 "use client";
 
+import { formatMinutes } from "@/utitils/formatMinutes";
 import { useSolution } from "../api/useSolution";
 
 type Props = {
   routeId: string;
 };
 
-function formatMinutes(minutes: number): string {
-  const h = Math.floor(minutes / 60);
-  const m = Math.round(minutes % 60);
-  return h > 0 ? `${h}h ${m}min` : `${m}min`;
-}
+
 
 export function SolutionStatsBar({ routeId }: Props) {
   const { data: solution } = useSolution(routeId);
-  
-  
 
   if (!solution) return null;
 
