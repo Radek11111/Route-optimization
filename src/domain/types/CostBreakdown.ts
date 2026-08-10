@@ -1,13 +1,14 @@
 export interface CostBreakdown {
-    travelTime: number;
-    workTimePenalty: number;
-    timeWindowPenalty: number;
-    returnToDepotPenalty: number;
-    priorityPenalty: number;
+  travelTime: number;
+  workTimePenalty: number;
+  timeWindowPenalty: number;
+  returnToDepotPenalty: number;
+  priorityPenalty: number;
+  drivingRulesPenalty: number;
 }
 
 export interface CostResult {
-    totalCost: number;
-    breakdown: CostBreakdown;
-    feasible: boolean;
+  totalCost: number;
+  breakdown: CostBreakdown;
+  feasible: boolean;
 }

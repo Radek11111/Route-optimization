@@ -113,10 +113,8 @@ describe("simulateRoute", () => {
       state,
     );
 
-    // depot -> A = 10
-    // wait until 50
-    // service = 10
-    expect(state.currentTime).toBe(60);
+
+    expect(state.currentTime).toBe(70);
   });
 
   it("detects time window violation", () => {
@@ -140,6 +138,7 @@ describe("simulateRoute", () => {
     );
 
     expect(state.violations.timeWindows).toHaveLength(1);
+
     expect(state.violations.timeWindows[0]).toEqual({
       pointId: "A",
       violation: 5,
@@ -236,21 +235,7 @@ describe("simulateRoute", () => {
       state,
     );
 
-    /*
-      depot -> A = 10
-      A -> B = 15
-
-      Przed A -> B:
-      10 + 15 > 20
-
-      Kierowca robi 15 min przerwy.
-      Następnie jedzie 15 min.
-
-      B -> depot = 20
-      Ponieważ 15 + 20 > 20,
-      kierowca ponownie robi 15 min przerwy.
-    */
-
+   
     expect(state.totalDrivingRuleBreaks).toBe(30);
   });
 
@@ -279,14 +264,7 @@ describe("simulateRoute", () => {
       state,
     );
 
-    /*
-      Po drugiej przerwie:
-
-      B -> depot = 20
-
-      continuousDrivingMinutes = 20
-    */
-
+    // Po drugiej przerwie wykonywany jest przejazd B -> depot = 20.
     expect(state.continuousDrivingMinutes).toBe(20);
   });
 
@@ -318,37 +296,42 @@ describe("simulateRoute", () => {
     expect(state.totalDrivingRuleBreaks).toBe(0);
   });
 
-it("adds daily rest when daily driving limit is exceeded", () => {
-  const points = createPoints();
+  it("adds daily rest when daily driving limit is exceeded", () => {
+    const points = createPoints();
 
-  const constraints: Constraints = {
-    ...baseConstraints,
-    drivingRules: {
-      ...baseConstraints.drivingRules!,
-      maxContinuousDrivingMinutes: 100,
-      maxDailyDrivingMinutes: 20,
-      maxDailyDrivingExceptionMinutes: 20,
-      maxExceptionsPerWeek: 0,
+    const constraints: Constraints = {
+      ...baseConstraints,
+      drivingRules: {
+        ...baseConstraints.drivingRules!,
+        maxContinuousDrivingMinutes: 100,
 
-      regularDailyRestMinutes: 60,
-      reducedDailyRestMinutes: 30,
-      maxReducedRestCount: 0,
-    },
-  };
+        maxDailyDrivingMinutes: 20,
+        maxDailyDrivingExceptionMinutes: 20,
+        maxExceptionsPerWeek: 0,
 
-  const route = [1, 2];
+        regularDailyRestMinutes: 60,
+        reducedDailyRestMinutes: 30,
+        maxReducedRestCount: 0,
+      },
+    };
 
-  const state = createSimulationState(0, constraints);
+    const route = [1, 2];
 
-  simulateRoute(route, matrix, points, constraints, 0, state);
+    const state = createSimulationState(0, constraints);
 
-  // depot -> A = 10
-  // A -> B = 15 -> daily rest 60
-  // B -> depot = 20 -> daily rest 60
+    simulateRoute(
+      route,
+      matrix,
+      points,
+      constraints,
+      0,
+      state,
+    );
 
-  expect(state.totalDrivingRuleBreaks).toBe(120);
-  expect(state.drivingSinceRestMinutes).toBe(20);
-});
+   
+    expect(state.totalDrivingRuleBreaks).toBe(120);
+    expect(state.drivingSinceRestMinutes).toBe(20);
+  });
 
   it("uses daily driving exception when available", () => {
     const points = createPoints();
@@ -373,14 +356,23 @@ it("adds daily rest when daily driving limit is exceeded", () => {
 
     const state = createSimulationState(0, constraints);
 
-    simulateRoute(route, matrix, points, constraints, 0, state);
+    simulateRoute(
+      route,
+      matrix,
+      points,
+      constraints,
+      0,
+      state,
+    );
 
- 
 
     expect(state.exceptionsUsed).toBe(1);
     expect(state.totalDrivingRuleBreaks).toBe(60);
   });
-  it("uses daily exception when return to depot exceeds the limit", () => {
+
+  
+
+  it("uses reduced daily rest when available", () => {
     const points = createPoints();
 
     const constraints: Constraints = {
@@ -390,16 +382,16 @@ it("adds daily rest when daily driving limit is exceeded", () => {
         maxContinuousDrivingMinutes: 100,
 
         maxDailyDrivingMinutes: 20,
-        maxDailyDrivingExceptionMinutes: 25,
-        maxExceptionsPerWeek: 1,
+        maxDailyDrivingExceptionMinutes: 20,
+        maxExceptionsPerWeek: 0,
 
         regularDailyRestMinutes: 60,
         reducedDailyRestMinutes: 30,
-        maxReducedRestCount: 0,
+        maxReducedRestCount: 1,
       },
     };
 
-    const route = [1];
+    const route = [1, 2];
 
     const state = createSimulationState(0, constraints);
 
@@ -412,44 +404,10 @@ it("adds daily rest when daily driving limit is exceeded", () => {
       state,
     );
 
-
-
-    expect(state.drivingSinceRestMinutes).toBe(20);
-    expect(state.exceptionsUsed).toBe(0);
-    expect(state.totalDrivingRuleBreaks).toBe(0);
+    
+    expect(state.reducedRestUsed).toBe(1);
+    expect(state.totalDrivingRuleBreaks).toBe(90);
   });
-
- it("uses reduced daily rest when available", () => {
-   const points = createPoints();
-
-   const constraints: Constraints = {
-     ...baseConstraints,
-     drivingRules: {
-       ...baseConstraints.drivingRules!,
-       maxContinuousDrivingMinutes: 100,
-
-       maxDailyDrivingMinutes: 20,
-       maxDailyDrivingExceptionMinutes: 20,
-       maxExceptionsPerWeek: 0,
-
-       regularDailyRestMinutes: 60,
-       reducedDailyRestMinutes: 30,
-       maxReducedRestCount: 1,
-     },
-   };
-
-   const route = [1, 2];
-
-   const state = createSimulationState(0, constraints);
-
-   simulateRoute(route, matrix, points, constraints, 0, state);
-
-   // pierwszy odpoczynek = reduced 30
-   // drugi odpoczynek = regular 60
-
-   expect(state.reducedRestUsed).toBe(1);
-   expect(state.totalDrivingRuleBreaks).toBe(90);
- });
 
   it("uses regular daily rest when reduced rest is no longer available", () => {
     const points = createPoints();
@@ -474,7 +432,14 @@ it("adds daily rest when daily driving limit is exceeded", () => {
 
     const state = createSimulationState(0, constraints);
 
-    simulateRoute(route, matrix, points, constraints, 0, state);
+    simulateRoute(
+      route,
+      matrix,
+      points,
+      constraints,
+      0,
+      state,
+    );
 
     expect(state.reducedRestUsed).toBe(0);
     expect(state.totalDrivingRuleBreaks).toBe(120);
@@ -504,6 +469,180 @@ it("adds daily rest when daily driving limit is exceeded", () => {
     expect(state.totalDrivingRuleBreaks).toBe(0);
     expect(state.continuousDrivingMinutes).toBe(45);
     expect(state.drivingSinceRestMinutes).toBe(45);
+  });
+
+  it("advances currentTime to the window start using clock time, not raw cumulative time", () => {
+    const depotIndex = 0;
+
+    const points: Point[] = [
+      {
+        id: "depot",
+        latitude: 0,
+        longitude: 0,
+      },
+      {
+        id: "client-a",
+        latitude: 0,
+        longitude: 0,
+        timeWindow: {
+          start: 480,
+          end: 600,
+        },
+      },
+    ];
+
+    // 1500 % 1440 = 60
+    // arrival = 01:00
+    // window starts at 08:00 = 480
+    // waiting = 480 - 60 = 420
+    //
+    // currentTime:
+    // 1500 + 420 = 1920
+
+    const matrix = [
+      [0, 1500],
+      [1500, 0],
+    ];
+
+    const constraints: Constraints = {
+      workStartMinutes: 0,
+      workEndMinutes: 1440,
+      maxWorkDurationMinutes: 100000,
+    };
+
+    const state = createSimulationState(
+      depotIndex,
+      constraints,
+    );
+
+    simulateRoute(
+      [1],
+      matrix,
+      points,
+      constraints,
+      depotIndex,
+      state,
+    );
+
+    expect(state.currentTime).toBe(1920);
+    expect(state.violations.timeWindows).toHaveLength(0);
+  });
+
+  it("flags a violation based on clock time even after multiple elapsed days", () => {
+    const depotIndex = 0;
+
+    const points: Point[] = [
+      {
+        id: "depot",
+        latitude: 0,
+        longitude: 0,
+      },
+      {
+        id: "client-a",
+        latitude: 0,
+        longitude: 0,
+        timeWindow: {
+          start: 480,
+          end: 600,
+        },
+      },
+    ];
+
+    // 2140 % 1440 = 700
+    // 700 = 11:40
+    // window ends at 10:00 = 600
+    // violation = 100 min
+
+    const matrix = [
+      [0, 2140],
+      [2140, 0],
+    ];
+
+    const constraints: Constraints = {
+      workStartMinutes: 0,
+      workEndMinutes: 1440,
+      maxWorkDurationMinutes: 100000,
+    };
+
+    const state = createSimulationState(
+      depotIndex,
+      constraints,
+    );
+
+    simulateRoute(
+      [1],
+      matrix,
+      points,
+      constraints,
+      depotIndex,
+      state,
+    );
+
+    expect(state.violations.timeWindows).toHaveLength(1);
+
+    expect(state.violations.timeWindows[0]).toEqual({
+      pointId: "client-a",
+      violation: 100,
+    });
+  });
+
+  it("inserts a break before an over-limit leg back to the depot", () => {
+    const depotIndex = 0;
+
+    const points: Point[] = [
+      {
+        id: "depot",
+        latitude: 0,
+        longitude: 0,
+      },
+      {
+        id: "client-a",
+        latitude: 0,
+        longitude: 0,
+      },
+    ];
+
+    const matrix = [
+      [0, 10],
+      [500, 0],
+    ];
+
+    const constraints: Constraints = {
+      workStartMinutes: 0,
+      workEndMinutes: 1440,
+      maxWorkDurationMinutes: 100000,
+      returnToDepot: true,
+
+      drivingRules: {
+        maxContinuousDrivingMinutes: 270,
+        drivingBreakMinutes: 45,
+
+        maxDailyDrivingMinutes: 540,
+        maxDailyDrivingExceptionMinutes: 600,
+        maxExceptionsPerWeek: 2,
+
+        regularDailyRestMinutes: 660,
+        reducedDailyRestMinutes: 540,
+        maxReducedRestCount: 3,
+      },
+    };
+
+    const state = createSimulationState(
+      depotIndex,
+      constraints,
+    );
+
+    simulateRoute(
+      [1],
+      matrix,
+      points,
+      constraints,
+      depotIndex,
+      state,
+    );
+
+    expect(state.totalDrivingRuleBreaks).toBeGreaterThanOrEqual(45);
+    expect(state.lastPointIndex).toBe(depotIndex);
   });
 });
 

@@ -31,6 +31,7 @@ export function solutionCostEvaluator(
     breakdown.timeWindowPenalty += result.breakdown.timeWindowPenalty;
     breakdown.returnToDepotPenalty += result.breakdown.returnToDepotPenalty;
     breakdown.priorityPenalty += result.breakdown.priorityPenalty;
+    breakdown.drivingRulesPenalty += result.breakdown.drivingRulesPenalty;
 
     if (!result.feasible) {
       feasible = false;

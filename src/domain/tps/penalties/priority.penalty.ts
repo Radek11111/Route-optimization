@@ -1,5 +1,5 @@
 import { Point } from "@/domain/types/Point";
-import { PENALTIES } from "./pentalties.config";
+import { PENALTIES } from "./penalty.config";
 
 export function calculatePriorityPenalty(
   route: number[],

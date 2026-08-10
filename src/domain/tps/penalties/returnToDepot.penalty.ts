@@ -1,5 +1,5 @@
 import { RouteSimulationState } from "@/domain/types/RouteSimulationState";
-import { PENALTIES } from "./pentalties.config";
+import { PENALTIES } from "./penalty.config";
 
 export function calculateReturnPenalty(state: RouteSimulationState): number {
   if (!state.violations.returnViolation) {
