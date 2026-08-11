@@ -55,11 +55,11 @@ export function SolutionTab({ routeId }: Props) {
                       : "bg-red-100 text-red-700"
                   }`}
                 >
-                  {vr.feasible ? "Feasible" : "Infeasible"}
+                  {vr.feasible ? "Wykonalne" : "Niewykonalne"}
                 </span>
               </div>
 
-              
+              {/* Problem z wizualizacją danych */}
               <div className="flex gap-3 text-xs text-muted-foreground">
                 <span className="flex items-center gap-1">
                   <MapPin className="h-3 w-3" />
@@ -80,7 +80,7 @@ export function SolutionTab({ routeId }: Props) {
                     .slice(0, 3)
                     .map((s: any) => s.point.name ?? "—")
                     .join(" → ")}
-                  {vr.stops.length > 3 && " → ..."}niewykonalny
+                  {vr.stops.length > 3 && " → ..."}
                 </p>
               )}
             </div>

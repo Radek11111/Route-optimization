@@ -1,7 +1,7 @@
 "use client";
 
 import { formatMinutes } from "@/utitils/formatMinutes";
-import { useSolution } from "../api/useSolution";
+import { useSolution } from "../../api/useSolution";
 
 type Props = {
   routeId: string;

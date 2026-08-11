@@ -1,7 +1,7 @@
 "use client";
 
 import { formatMinutes } from "@/utitils/formatMinutes";
-import { useSolution } from "../api/useSolution";
+import { useSolution } from "../../api/useSolution";
 
 type Props = {
   routeId: string;
@@ -74,7 +74,7 @@ export function SolutionStatsBar({ routeId }: Props) {
     },
     {
       label: "Status",
-      value: solution.feasible ? "Feasible" : "Infeasible",
+      value: solution.feasible ? "Wykonalne" : "Niewykonalne",
       highlight: solution.feasible ? "green" : "red",
     },
   ];
