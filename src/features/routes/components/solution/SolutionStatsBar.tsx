@@ -49,10 +49,7 @@ export function SolutionStatsBar({ routeId }: Props) {
       label: "Pojazdy",
       value: `${activeVehicles}/${totalVehicles}`,
     },
-    {
-      label: "Śr. punktów",
-      value: avgPointsPerVehicle,
-    },
+  
     {
       label: "Nieprzypisane",
       value: solution.unassignedPoints?.length ?? 0,

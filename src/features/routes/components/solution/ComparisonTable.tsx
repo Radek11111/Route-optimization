@@ -31,7 +31,7 @@ export function ComparisonTable({ solution }: Props) {
         ? `${solution.totalDistanceKm.toFixed(1)} km`
         : "—",
       diff: solution.savedDistanceKm
-        ? `-${solution.savedDistanceKm.toFixed(1)} km (-${solution.savedPercent}%)`
+        ? `${solution.savedDistanceKm.toFixed(1)} km (${solution.savedPercent}%)`
         : "—",
       positive: true,
     },
@@ -41,7 +41,7 @@ export function ComparisonTable({ solution }: Props) {
       optimized: solution.estimatedPrice
         ? `${solution.estimatedPrice.toFixed(2)} zł`
         : "—",
-      diff: solution.savedPercent ? `-${solution.savedPercent}%` : "—",
+      diff: solution.savedPercent ? `${solution.savedPercent}%` : "—",
       positive: true,
     },
     {
@@ -51,13 +51,7 @@ export function ComparisonTable({ solution }: Props) {
       diff: `${activeVehicles - naiveVehicles}`,
       positive: activeVehicles < naiveVehicles,
     },
-    {
-      label: "Śr. punktów na pojazd",
-      naive: "—",
-      optimized: avgPoints,
-      diff: "—",
-      positive: false,
-    },
+
   ];
 
   return (

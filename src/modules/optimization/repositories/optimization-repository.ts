@@ -13,7 +13,7 @@ export async function getRouteForOptimization(routeId: string) {
       points: {
         where: {
           depotForRoutes: {
-            is: null,
+            none: {},
           },
         },
       },
@@ -31,6 +31,13 @@ export async function saveFullSolution(data: {
   naiveDistanceKm?: number;
   savedDistanceKm?: number;
   savedPercent?: number;
+  vehicleStats?: {
+    vehicleIndex: number;
+    totalTravelTime: number;
+    totalDistanceKm: number;
+    estimatedPrice: number | null;
+    feasible: boolean;
+  }[];
 }) {
   const {
     routeId,
@@ -66,11 +73,18 @@ export async function saveFullSolution(data: {
     ) {
       const route = solution.routes[vehicleIndex];
 
+      const stats = data.vehicleStats?.find(
+        (s) => s.vehicleIndex === vehicleIndex,
+      );
+
       const vehicleRoute = await tx.vehicleRoute.create({
         data: {
           solutionId: savedSolution.id,
           vehicleIndex,
           feasible: solution.feasible,
+          totalTravelTime: stats?.totalTravelTime,
+          totalDistanceKm: stats?.totalDistanceKm,
+          estimatedPrice: stats?.estimatedPrice,
         },
       });
       for (let order = 0; order < route.length; order++) {

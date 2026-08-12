@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useSolution } from "../../api/useSolution";
-import { ChevronDown, ChevronUp, Clock, MapPin } from "lucide-react";
+import { ChevronDown, ChevronUp, Clock, MapPin, Road } from "lucide-react";
 import { formatMinutes } from "@/utitils/formatMinutes";
 
 type Props = {
@@ -38,7 +38,6 @@ export function SolutionTab({ routeId }: Props) {
 
         return (
           <div key={vr.id} className="rounded-md border overflow-hidden">
-           
             <div className="p-3 space-y-2">
               <div className="flex items-center gap-2">
                 <div
@@ -59,21 +58,25 @@ export function SolutionTab({ routeId }: Props) {
                 </span>
               </div>
 
-              {/* Problem z wizualizacją danych */}
               <div className="flex gap-3 text-xs text-muted-foreground">
                 <span className="flex items-center gap-1">
                   <MapPin className="h-3 w-3" />
                   {vr.stops.length} punktów
                 </span>
                 {vr.totalTravelTime && (
-                  <span className="flex items-center gap-1">
-                    <Clock className="h-3 w-3" />
-                    {formatMinutes(vr.totalTravelTime)}
-                  </span>
+                  <>
+                    <span className="flex items-center gap-1">
+                      <Road className="h-3 w-3" />
+                      {vr.totalDistanceKm.toFixed(1)} km
+                    </span>
+                    <span className="flex items-center gap-1">
+                      <Clock className="h-3 w-3" />
+                      {formatMinutes(vr.totalTravelTime)}
+                    </span>
+                  </>
                 )}
               </div>
 
-             
               {vr.stops.length > 0 && (
                 <p className="text-xs text-muted-foreground truncate">
                   {vr.stops
@@ -85,7 +88,6 @@ export function SolutionTab({ routeId }: Props) {
               )}
             </div>
 
-           
             {vr.stops.length > 0 && (
               <>
                 <button

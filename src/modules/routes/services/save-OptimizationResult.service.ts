@@ -12,6 +12,13 @@ export async function saveOptimizationResultService(
   naiveDistanceKm?: number,
   savedDistanceKm?: number,
   savedPercent?: number,
+  vehicleStats?: {
+    vehicleIndex: number;
+    totalTravelTime: number;
+    totalDistanceKm: number;
+    estimatedPrice: number | null;
+    feasible: boolean;
+  }[],
 ) {
   return saveFullSolution({
     routeId,
@@ -23,5 +30,6 @@ export async function saveOptimizationResultService(
     naiveDistanceKm,
     savedDistanceKm,
     savedPercent,
+    vehicleStats,
   });
 }

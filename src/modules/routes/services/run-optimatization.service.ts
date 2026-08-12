@@ -6,7 +6,8 @@ import { getRouteForOptimization } from "../../optimization/repositories/optimiz
 import { optimizeRouteDto } from "@/modules/optimization/dto/optimizeRoute.dto";
 import { sumSolutionDistance } from "@/features/solutions/sumSolutionDistance";
 import { calculateNaiveCost } from "@/features/solutions/calculateNaiveCost";
-import { naiveSolution } from "@/domain/tps/solver/naiveSolution";
+import { routeCostEvaluator } from "@/domain/tps/evaluators/routeCostEvaluator";
+import { sumRouteDistance } from "@/features/solutions/sumRouteDistance";
 
 export async function runOptimizationService(
   routeId: string,
@@ -71,7 +72,31 @@ export async function runOptimizationService(
       ? Math.round((savedDistanceKm / naiveDistanceKm) * 100)
       : 0;
 
-     
+  const vehicleStats = solution.routes.map((vehicleRoute, vehicleIndex) => {
+    const cost = routeCostEvaluator(
+      vehicleRoute,
+      matrix.durationMatrix,
+      allDomainPoints,
+      constraints,
+      depotIndex,
+    );
+
+    const distanceMeters = sumRouteDistance(
+      vehicleRoute,
+      matrix.distanceMatrix,
+      depotIndex,
+      constraints.returnToDepot ?? false,
+    );
+    const distanceKm = distanceMeters / 1000;
+    return {
+      vehicleIndex,
+      totalTravelTime: cost.breakdown.travelTime,
+      totalDistanceKm: distanceKm,
+      estimatedPrice: route.ratePerKm ? distanceKm * route.ratePerKm : null,
+      feasible: cost.feasible,
+    };
+  });
+
   return {
     dto: optimizeRouteDto(
       solution,
@@ -87,5 +112,6 @@ export async function runOptimizationService(
     naiveDistanceKm,
     savedDistanceKm,
     savedPercent,
+    vehicleStats,
   };
 }

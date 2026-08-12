@@ -12,7 +12,7 @@ export function SolutionDetails({ routeId }: Props) {
 
   if (!solution) return null;
   return (
-    <div className="grid grid-col-3 gap-6 p-6">
+    <div className="grid grid-cols-[1fr_1.5fr_1fr] gap-6 p-6">
       <ComparisonTable solution={solution} />
       <VehicleTable solution={solution} />
       <ConstraintsPanel solution={solution} />
