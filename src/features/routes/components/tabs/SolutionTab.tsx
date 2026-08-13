@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useSolution } from "../../api/useSolution";
 import { ChevronDown, ChevronUp, Clock, MapPin, Road } from "lucide-react";
-import { formatMinutes } from "@/utitils/formatMinutes";
+import { formatMinutes } from "@/utils/formatMinutes";
 
 type Props = {
   routeId: string;

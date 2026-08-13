@@ -1,6 +1,6 @@
 "use client";
 
-import { formatMinutes } from "@/utitils/formatMinutes";
+import { formatMinutes } from "@/utils/formatMinutes";
 import { useSolution } from "../../api/useSolution";
 
 type Props = {

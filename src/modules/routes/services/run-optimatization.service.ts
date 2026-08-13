@@ -81,6 +81,13 @@ export async function runOptimizationService(
       depotIndex,
     );
 
+    const totalServiceTime = vehicleRoute.reduce((acc, pointIndex) => {
+      const point = allDomainPoints[pointIndex];
+      return acc + (point?.serviceTimeMinutes ?? 0);
+    }, 0);
+
+    const totalWorkTime = cost.breakdown.travelTime + totalServiceTime;
+
     const distanceMeters = sumRouteDistance(
       vehicleRoute,
       matrix.distanceMatrix,
@@ -88,9 +95,12 @@ export async function runOptimizationService(
       constraints.returnToDepot ?? false,
     );
     const distanceKm = distanceMeters / 1000;
+
     return {
       vehicleIndex,
       totalTravelTime: cost.breakdown.travelTime,
+      totalServiceTime,
+      totalWorkTime,
       totalDistanceKm: distanceKm,
       estimatedPrice: route.ratePerKm ? distanceKm * route.ratePerKm : null,
       feasible: cost.feasible,
@@ -103,6 +113,7 @@ export async function runOptimizationService(
       allDomainPoints,
       totalDistanceKm,
       estimatedPrice,
+      vehicleStats,
     ),
     solution,
     domainPoints,

@@ -31,6 +31,7 @@ export async function GET(
         },
       },
     });
+   
     if (!solution) {
       return NextResponse.json(
         { success: false, message: "No solution found for this route." },

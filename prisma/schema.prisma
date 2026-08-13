@@ -148,6 +148,7 @@ model VehicleRoute {
 
   totalServiceTime Float?
   totalTravelTime Float?
+  totalWorkTime Float?
   feasible Boolean?
 
   solutionId String
