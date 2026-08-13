@@ -135,7 +135,7 @@ model Solution {
  updatedAt DateTime @updatedAt
 
  totalDistanceKm Float?
-          estimatedPrice  Float?
+  estimatedPrice  Float?
 
  unassignedPoints UnassignedPoint[]
  @@index([routeId, createdAt])
@@ -148,13 +148,15 @@ model VehicleRoute {
 
   totalServiceTime Float?
   totalTravelTime Float?
+  totalWorkTime Float?
   feasible Boolean?
 
   solutionId String
   solution   Solution @relation(fields: [solutionId], references: [id], onDelete: Cascade)
 
   createdAt DateTime @default(now())
-
+  totalDistanceKm Float?
+  estimatedPrice  Float?
   stops RouteStop[]
 
 @@index([solutionId])

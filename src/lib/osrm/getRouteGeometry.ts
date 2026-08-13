@@ -2,11 +2,12 @@ type Coordinate = [number, number];
 
 export async function getRouteGeometry(
   coordinates: Coordinate[],
-  baseUrl: string = "http://router.project-osrm.org",
+  baseUrl: string = "https://router.project-osrm.org",
 ): Promise<Coordinate[]> {
   if (coordinates.length < 2) return coordinates;
 
   const coords = coordinates.map(([lon, lat]) => `${lon},${lat}`).join(";");
+
   const url = `${baseUrl}/route/v1/driving/${coords}?overview=full&geometries=geojson`;
 
   const response = await fetch(url);

@@ -1,5 +1,5 @@
 import { RouteSimulationState } from "@/domain/types/RouteSimulationState";
-import { PENALTIES } from "./pentalties.config";
+import { PENALTIES } from "./penalty.config";
 
 export function calculateTimeWindowPenalty(
   state: RouteSimulationState,

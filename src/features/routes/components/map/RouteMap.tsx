@@ -22,8 +22,6 @@ export default function RouteMap({
   const mapRef = useRef<L.Map | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  
-
   useEffect(() => {
     if (!containerRef.current || mapRef.current) return;
 

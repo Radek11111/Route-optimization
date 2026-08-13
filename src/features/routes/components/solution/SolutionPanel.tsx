@@ -1,6 +1,7 @@
 "use client";
 
-import { useSolution } from "../api/useSolution";
+import { formatMinutes } from "@/utils/formatMinutes";
+import { useSolution } from "../../api/useSolution";
 
 type Props = {
   routeId: string;
@@ -8,15 +9,10 @@ type Props = {
 
 const VEHICLE_COLORS = ["#3498db", "#e74c3c", "#2ecc71", "#f39c12", "#9b59b6"];
 
-function formatMinutes(minutes: number): string {
-  const h = Math.floor(minutes / 60);
-  const m = Math.round(minutes % 60);
-  return h > 0 ? `${h}h ${m}min` : `${m}min`;
-}
+
 
 export function SolutionPanel({ routeId }: Props) {
   const { data: solution, isLoading } = useSolution(routeId);
-
 
   if (isLoading)
     return (

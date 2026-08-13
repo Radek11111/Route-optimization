@@ -1,6 +1,9 @@
 "use client";
 
+import { useState } from "react";
 import { useSolution } from "../../api/useSolution";
+import { ChevronDown, ChevronUp, Clock, MapPin, Road } from "lucide-react";
+import { formatMinutes } from "@/utils/formatMinutes";
 
 type Props = {
   routeId: string;
@@ -8,14 +11,9 @@ type Props = {
 
 const VEHICLE_COLORS = ["#3498db", "#2ecc71", "#f39c12", "#e74c3c", "#9b59b6"];
 
-function formatMinutes(minutes: number): string {
-  const h = Math.floor(minutes / 60);
-  const m = Math.round(minutes % 60);
-  return h > 0 ? `${h}h ${m}m` : `${m}m`;
-}
-
 export function SolutionTab({ routeId }: Props) {
   const { data: solution, isLoading } = useSolution(routeId);
+  const [expanded, setExpanded] = useState<Record<string, boolean>>({});
 
   if (isLoading)
     return (
@@ -28,52 +26,108 @@ export function SolutionTab({ routeId }: Props) {
       </div>
     );
 
+  function toggleExpand(id: string) {
+    setExpanded((prev) => ({ ...prev, [id]: !prev[id] }));
+  }
+
   return (
-    <div className="p-3 space-y-3">
+    <div className="p-3 space-y-2">
       {solution.vehicleRoutes.map((vr: any) => {
         const color = VEHICLE_COLORS[vr.vehicleIndex % VEHICLE_COLORS.length];
+        const isExpanded = expanded[vr.id] ?? false;
 
         return (
-          <div key={vr.id} className="rounded-md border p-3 space-y-2">
-            <div className="flex items-center gap-2">
-              <div
-                className="w-3 h-3 rounded-full shrink-0"
-                style={{ backgroundColor: color }}
-              />
-              <span className="text-sm font-medium">
-                Pojazd {vr.vehicleIndex + 1}
-              </span>
-              <span
-                className={`ml-auto text-xs px-1.5 py-0.5 rounded-full ${vr.feasible ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"}`}
-              >
-                {vr.feasible ? "feasible" : "infeasible"}
-              </span>
-            </div>
-
-            <div className="flex gap-3 text-xs text-muted-foreground">
-              <span>⊙ {vr.stops.length} stopów</span>
-            </div>
-
-            <ol className="space-y-1 pl-1">
-              {vr.stops.slice(0, 4).map((stop: any) => (
-                <li
-                  key={stop.id}
-                  className="text-xs text-muted-foreground flex gap-2"
+          <div key={vr.id} className="rounded-md border overflow-hidden">
+            <div className="p-3 space-y-2">
+              <div className="flex items-center gap-2">
+                <div
+                  className="w-3 h-3 rounded-full shrink-0"
+                  style={{ backgroundColor: color }}
+                />
+                <span className="text-sm font-semibold">
+                  Pojazd {vr.vehicleIndex + 1}
+                </span>
+                <span
+                  className={`ml-auto text-xs px-1.5 py-0.5 rounded-full font-medium ${
+                    vr.feasible
+                      ? "bg-green-100 text-green-700"
+                      : "bg-red-100 text-red-700"
+                  }`}
                 >
-                  <span>→</span>
-                  <span className="truncate">
-                    {" "}
-                    {stop.point.name ??
-                      `${stop.point.latitude}, ${stop.point.longitude}`}
-                  </span>
-                </li>
-              ))}
-              {vr.stops.length > 4 && (
-                <li className="text-xs text-muted-foreground pl-4">
-                  ...{vr.stops.length - 4} kolejnych
-                </li>
+                  {vr.feasible ? "Wykonalne" : "Niewykonalne"}
+                </span>
+              </div>
+
+              <div className="flex gap-3 text-xs text-muted-foreground">
+                <span className="flex items-center gap-1">
+                  <MapPin className="h-3 w-3" />
+                  {vr.stops.length} punktów
+                </span>
+                {vr.totalTravelTime && (
+                  <>
+                    <span className="flex items-center gap-1">
+                      <Road className="h-3 w-3" />
+                      {vr.totalDistanceKm.toFixed(1)} km
+                    </span>
+                    <span className="flex items-center gap-1">
+                      <Clock className="h-3 w-3" />
+                      {formatMinutes(vr.totalTravelTime)}
+                    </span>
+                  </>
+                )}
+              </div>
+
+              {vr.stops.length > 0 && (
+                <p className="text-xs text-muted-foreground truncate">
+                  {vr.stops
+                    .slice(0, 3)
+                    .map((s: any) => s.point.name ?? "—")
+                    .join(" → ")}
+                  {vr.stops.length > 3 && " → ..."}
+                </p>
               )}
-            </ol>
+            </div>
+
+            {vr.stops.length > 0 && (
+              <>
+                <button
+                  onClick={() => toggleExpand(vr.id)}
+                  className="w-full flex items-center justify-center gap-1 py-1.5 text-xs text-muted-foreground hover:bg-muted border-t transition-colors"
+                >
+                  {isExpanded ? (
+                    <>
+                      <ChevronUp className="h-3 w-3" /> Zwiń
+                    </>
+                  ) : (
+                    <>
+                      <ChevronDown className="h-3 w-3" /> Rozwiń przystanki
+                    </>
+                  )}
+                </button>
+
+                {isExpanded && (
+                  <ol className="border-t divide-y">
+                    {vr.stops.map((stop: any, index: number) => (
+                      <li
+                        key={stop.id}
+                        className="flex items-center gap-2 px-3 py-2 text-xs"
+                      >
+                        <span
+                          className="w-5 h-5 rounded-full text-white flex items-center justify-center shrink-0 text-[10px] font-bold"
+                          style={{ backgroundColor: color }}
+                        >
+                          {index + 1}
+                        </span>
+                        <span className="truncate">
+                          {stop.point.name ??
+                            `${stop.point.latitude}, ${stop.point.longitude}`}
+                        </span>
+                      </li>
+                    ))}
+                  </ol>
+                )}
+              </>
+            )}
           </div>
         );
       })}

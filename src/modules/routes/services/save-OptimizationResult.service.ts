@@ -1,6 +1,7 @@
 import { Point } from "@/domain/types/Point";
 import { Solution } from "@/domain/types/Solution";
 import { saveFullSolution } from "@/modules/optimization/repositories/optimization-repository";
+import { VehicleStatsDto } from "../../optimization/dto/optimizeRoute.dto";
 
 export async function saveOptimizationResultService(
   routeId: string,
@@ -12,7 +13,9 @@ export async function saveOptimizationResultService(
   naiveDistanceKm?: number,
   savedDistanceKm?: number,
   savedPercent?: number,
+  vehicleStats?: VehicleStatsDto[],
 ) {
+
   return saveFullSolution({
     routeId,
     solution,
@@ -23,5 +26,6 @@ export async function saveOptimizationResultService(
     naiveDistanceKm,
     savedDistanceKm,
     savedPercent,
+    vehicleStats,
   });
 }

@@ -20,9 +20,19 @@ describe("twoOpt", () => {
       ],
       constraints: {
         workStartMinutes: 0,
-        workEndMinutes: 1000,
-        maxWorkDurationMinutes: 1000,
+        workEndMinutes: 500,
+        maxWorkDurationMinutes: 500,
         returnToDepot: true,
+        drivingRules: {
+          maxContinuousDrivingMinutes: 100,
+          drivingBreakMinutes: 15,
+          maxDailyDrivingMinutes: 500,
+          maxDailyDrivingExceptionMinutes: 600,
+          maxExceptionsPerWeek: 1,
+          regularDailyRestMinutes: 600,
+          reducedDailyRestMinutes: 540,
+          maxReducedRestCount: 1,
+        },
       },
       depotIndex: 0,
     };

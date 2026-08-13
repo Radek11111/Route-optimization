@@ -3,11 +3,12 @@
 import { useState } from "react";
 import { useOptimize } from "../api/useOptimize";
 import { RouteMapWrapper } from "./map/RouteMapWrapper";
-import { SolutionStatsBar } from "./SolutionStatsBar";
+import { SolutionStatsBar } from "./solution/SolutionStatsBar";
 import { useRoute } from "../api/useRoute";
 import { ConfigurationTab } from "./tabs/ConfigurationTab";
 import { PointsTab } from "./tabs/PointsTab";
 import { SolutionTab } from "./tabs/SolutionTab";
+import { SolutionDetails } from "./solution/SolutionDetails";
 
 type Tab = "CONFIGURATION" | "POINTS" | "SOLUTION";
 
@@ -26,9 +27,9 @@ export function RouteDetailPage({ routeId }: Props) {
   }
 
   const tabs: { key: Tab; label: string }[] = [
-    { key: "CONFIGURATION", label: "Configuration" },
-    { key: "POINTS", label: "Points" },
-    { key: "SOLUTION", label: "Solution" },
+    { key: "CONFIGURATION", label: "Konfiguracja" },
+    { key: "POINTS", label: "Punkty" },
+    { key: "SOLUTION", label: "Rozwiązanie" },
   ];
 
   return (
@@ -66,7 +67,6 @@ export function RouteDetailPage({ routeId }: Props) {
           ))}
         </div>
 
-        {/* ZAWARTOŚĆ ZAKŁADKI */}
         <div className="flex-1 overflow-y-auto">
           {activeTab === "CONFIGURATION" && (
             <ConfigurationTab routeId={routeId} />
@@ -83,7 +83,12 @@ export function RouteDetailPage({ routeId }: Props) {
             mode={activeTab === "SOLUTION" ? "SOLUTION" : "EDIT"}
           />
         </div>
-        <SolutionStatsBar routeId={routeId} />
+        {activeTab === "SOLUTION" && (
+          <div className="border-t overflow-y-auto max-h-96">
+            <SolutionStatsBar routeId={routeId} />
+            <SolutionDetails routeId={routeId} />
+          </div>
+        )}
       </div>
     </div>
   );

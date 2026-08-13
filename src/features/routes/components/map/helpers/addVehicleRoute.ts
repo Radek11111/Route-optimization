@@ -40,17 +40,21 @@ export async function addVehicleRoute(
   ];
 
   try {
+    
     const geometry = await getRouteGeometry(coordinates);
-
     
 
     const latlngs: L.LatLngExpression[] = geometry
       .filter(([lon, lat]) => lon !== undefined && lat !== undefined)
       .map(([lon, lat]) => [lat, lon]);
 
+
+
     if (latlngs.length > 0) {
+   
       L.polyline(latlngs, { color, weight: 3, opacity: 0.7 }).addTo(map);
     }
+   
   } catch (error) {
     console.warn(
       `Błąd OSRM dla pojazdu ${vehicleRoute.vehicleIndex}, rysuję linię prostą.`,

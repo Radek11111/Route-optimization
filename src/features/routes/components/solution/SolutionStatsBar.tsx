@@ -1,21 +1,16 @@
 "use client";
 
-import { useSolution } from "../api/useSolution";
+import { formatMinutes } from "@/utils/formatMinutes";
+import { useSolution } from "../../api/useSolution";
 
 type Props = {
   routeId: string;
 };
 
-function formatMinutes(minutes: number): string {
-  const h = Math.floor(minutes / 60);
-  const m = Math.round(minutes % 60);
-  return h > 0 ? `${h}h ${m}min` : `${m}min`;
-}
+
 
 export function SolutionStatsBar({ routeId }: Props) {
   const { data: solution } = useSolution(routeId);
-  console.log("SolutionStatsBar solution", solution);
-  
 
   if (!solution) return null;
 
@@ -54,10 +49,7 @@ export function SolutionStatsBar({ routeId }: Props) {
       label: "Pojazdy",
       value: `${activeVehicles}/${totalVehicles}`,
     },
-    {
-      label: "Śr. punktów",
-      value: avgPointsPerVehicle,
-    },
+  
     {
       label: "Nieprzypisane",
       value: solution.unassignedPoints?.length ?? 0,
@@ -79,7 +71,7 @@ export function SolutionStatsBar({ routeId }: Props) {
     },
     {
       label: "Status",
-      value: solution.feasible ? "Feasible" : "Infeasible",
+      value: solution.feasible ? "Wykonalne" : "Niewykonalne",
       highlight: solution.feasible ? "green" : "red",
     },
   ];

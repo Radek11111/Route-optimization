@@ -26,6 +26,7 @@ export async function POST(
       naiveDistanceKm,
       savedDistanceKm,
       savedPercent,
+      vehicleStats,
     } = await runOptimizationService(id, matrixProvider);
     await saveOptimizationResultService(
       id,
@@ -37,6 +38,7 @@ export async function POST(
       naiveDistanceKm,
       savedDistanceKm,
       savedPercent,
+      vehicleStats,
     );
     return NextResponse.json({
       success: true,

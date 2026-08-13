@@ -1,6 +1,7 @@
 import { Point } from "@/domain/types/Point";
 import { Solution } from "@/domain/types/Solution";
 import prisma from "@/lib/prisma";
+import { VehicleStatsDto } from "../dto/optimizeRoute.dto";
 
 export async function getRouteForOptimization(routeId: string) {
   return prisma.route.findUnique({
@@ -31,6 +32,7 @@ export async function saveFullSolution(data: {
   naiveDistanceKm?: number;
   savedDistanceKm?: number;
   savedPercent?: number;
+  vehicleStats?: VehicleStatsDto[] | null;
 }) {
   const {
     routeId,
@@ -66,16 +68,31 @@ export async function saveFullSolution(data: {
     ) {
       const route = solution.routes[vehicleIndex];
 
+      const stats = data.vehicleStats?.find(
+        (s) => s.vehicleIndex === vehicleIndex,
+      );
+
       const vehicleRoute = await tx.vehicleRoute.create({
         data: {
           solutionId: savedSolution.id,
           vehicleIndex,
           feasible: solution.feasible,
+          totalTravelTime: stats?.totalTravelTime ?? 0,
+          totalDistanceKm: stats?.totalDistanceKm ?? 0,
+          estimatedPrice: stats?.estimatedPrice ?? null,
+          totalServiceTime: stats?.totalServiceTime ?? 0,
+          totalWorkTime: stats?.totalWorkTime ?? 0,
         },
       });
       for (let order = 0; order < route.length; order++) {
         const pointIndex = route[order];
         const pointId = allPoints[pointIndex].id;
+
+        if (!pointId) {
+          throw new Error(
+            `Invalid pointIndex ${pointIndex} for route on order ${order}`,
+          );
+        }
 
         await tx.routeStop.create({
           data: {

@@ -6,7 +6,8 @@ import { getRouteForOptimization } from "../../optimization/repositories/optimiz
 import { optimizeRouteDto } from "@/modules/optimization/dto/optimizeRoute.dto";
 import { sumSolutionDistance } from "@/features/solutions/sumSolutionDistance";
 import { calculateNaiveCost } from "@/features/solutions/calculateNaiveCost";
-import { naiveSolution } from "@/domain/tps/solver/naiveSolution";
+import { routeCostEvaluator } from "@/domain/tps/evaluators/routeCostEvaluator";
+import { sumRouteDistance } from "@/features/solutions/sumRouteDistance";
 
 export async function runOptimizationService(
   routeId: string,
@@ -71,18 +72,40 @@ export async function runOptimizationService(
       ? Math.round((savedDistanceKm / naiveDistanceKm) * 100)
       : 0;
 
-      console.log("vehicleCount:", route.vehicleCount);
-      console.log("pointCount:", allDomainPoints.length);
-      console.log("naiveDistanceKm:", naiveDistanceKm);
-      console.log("totalDistanceKm:", totalDistanceKm);
-      console.log("savedDistanceKm:", savedDistanceKm);
-      console.log(
-        "naive routes:",
-        JSON.stringify(
-          naiveSolution(allDomainPoints.length, depotIndex).routes,
-        ),
-      );
-      console.log("optimized routes:", JSON.stringify(solution.routes));
+  const vehicleStats = solution.routes.map((vehicleRoute, vehicleIndex) => {
+    const cost = routeCostEvaluator(
+      vehicleRoute,
+      matrix.durationMatrix,
+      allDomainPoints,
+      constraints,
+      depotIndex,
+    );
+
+    const totalServiceTime = vehicleRoute.reduce((acc, pointIndex) => {
+      const point = allDomainPoints[pointIndex];
+      return acc + (point?.serviceTimeMinutes ?? 0);
+    }, 0);
+
+    const totalWorkTime = cost.breakdown.travelTime + totalServiceTime;
+
+    const distanceMeters = sumRouteDistance(
+      vehicleRoute,
+      matrix.distanceMatrix,
+      depotIndex,
+      constraints.returnToDepot ?? false,
+    );
+    const distanceKm = distanceMeters / 1000;
+
+    return {
+      vehicleIndex,
+      totalTravelTime: cost.breakdown.travelTime,
+      totalServiceTime,
+      totalWorkTime,
+      totalDistanceKm: distanceKm,
+      estimatedPrice: route.ratePerKm ? distanceKm * route.ratePerKm : null,
+      feasible: cost.feasible,
+    };
+  });
 
   return {
     dto: optimizeRouteDto(
@@ -90,6 +113,7 @@ export async function runOptimizationService(
       allDomainPoints,
       totalDistanceKm,
       estimatedPrice,
+      vehicleStats,
     ),
     solution,
     domainPoints,
@@ -99,5 +123,6 @@ export async function runOptimizationService(
     naiveDistanceKm,
     savedDistanceKm,
     savedPercent,
+    vehicleStats,
   };
 }

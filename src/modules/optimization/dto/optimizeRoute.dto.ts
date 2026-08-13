@@ -1,6 +1,16 @@
 import { Point } from "@/domain/types/Point";
 import { Solution } from "@/domain/types/Solution";
 
+export type VehicleStatsDto = {
+  vehicleIndex: number;
+  totalServiceTime: number;
+  totalTravelTime: number;
+  totalWorkTime: number;
+  totalDistanceKm: number;
+  estimatedPrice: number | null;
+  feasible: boolean;
+};
+
 export type OptimalizationResponseDto = {
   routes: {
     id: string;
@@ -14,6 +24,7 @@ export type OptimalizationResponseDto = {
   feasible: boolean;
   totalDistanceKm: number;
   estimatedPrice: number | null;
+  vehicleStats: VehicleStatsDto[];
 };
 
 export function optimizeRouteDto(
@@ -21,6 +32,7 @@ export function optimizeRouteDto(
   points: Point[],
   totalDistanceKm: number,
   estimatedPrice: number | null,
+  vehicleStats: VehicleStatsDto[],
 ): OptimalizationResponseDto {
   return {
     routes: solution.routes.map((route) =>
@@ -37,5 +49,6 @@ export function optimizeRouteDto(
     feasible: solution.feasible,
     totalDistanceKm,
     estimatedPrice,
+    vehicleStats,
   };
 }

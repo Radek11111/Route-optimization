@@ -1,5 +1,7 @@
 "use client";
 
+import { Trash2 } from "lucide-react";
+import { useDeletePoint } from "../../api/useDeletePoint";
 import { usePoints } from "../../api/usePoints";
 import { PointForm } from "../PointForm";
 
@@ -9,6 +11,7 @@ type Props = {
 
 export function PointsTab({ routeId }: Props) {
   const { data: points, isLoading } = usePoints(routeId);
+  const { mutate: deletePoint } = useDeletePoint(routeId);
 
   return (
     <div className="flex flex-col">
@@ -36,6 +39,9 @@ export function PointsTab({ routeId }: Props) {
                   ? `${point.serviceTimeMinutes} min`
                   : ""}
               </span>
+              <button className="shrink-0 text-muted-foreground hover:text-red-500 transition-colors cursor-pointer">
+                <Trash2 size={15} onClick={() => deletePoint(point.id)} />
+              </button>
             </div>
           ))}
         </div>

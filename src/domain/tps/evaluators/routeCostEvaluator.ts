@@ -8,7 +8,8 @@ import { CostBreakdown } from "@/domain/types/CostBreakdown";
 import { calculateWorkTimePenalty } from "../penalties/workTime.penalty";
 import { calculateTimeWindowPenalty } from "../penalties/timeWindow.penalty";
 import { calculatePriorityPenalty } from "../penalties/priority.penalty";
-import { calculateReturnPenalty } from "../penalties/returnPenalties";
+import { calculateReturnPenalty } from "../penalties/returnToDepot.penalty";
+import { calculateDrivingRulesPenalty } from "../penalties/drivingRules.penalty";
 
 export function routeCostEvaluator(
   route: number[],
@@ -25,6 +26,7 @@ export function routeCostEvaluator(
   const timeWindowPenalty = calculateTimeWindowPenalty(state);
   const priorityPenalty = calculatePriorityPenalty(route, points);
   const returnToDepotPenalty = calculateReturnPenalty(state);
+  const drivingRulesPenalty = calculateDrivingRulesPenalty(state);
 
   const breakdown: CostBreakdown = {
     travelTime: state.totalTravelTime,
@@ -32,6 +34,7 @@ export function routeCostEvaluator(
     timeWindowPenalty,
     priorityPenalty,
     returnToDepotPenalty,
+    drivingRulesPenalty,
   };
 
   const totalCost =
@@ -39,7 +42,8 @@ export function routeCostEvaluator(
     breakdown.workTimePenalty +
     breakdown.timeWindowPenalty +
     breakdown.priorityPenalty +
-    breakdown.returnToDepotPenalty;
+    breakdown.returnToDepotPenalty +
+    breakdown.drivingRulesPenalty;
 
   const feasible =
     !state.violations.workTime &&
