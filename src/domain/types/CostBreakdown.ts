@@ -5,6 +5,7 @@ export interface CostBreakdown {
   returnToDepotPenalty: number;
   priorityPenalty: number;
   drivingRulesPenalty: number;
+  drivingBreaks: number;
 }
 
 export interface CostResult {

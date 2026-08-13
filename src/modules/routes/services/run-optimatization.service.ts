@@ -86,7 +86,11 @@ export async function runOptimizationService(
       return acc + (point?.serviceTimeMinutes ?? 0);
     }, 0);
 
-    const totalWorkTime = cost.breakdown.travelTime + totalServiceTime;
+    const totalWorkTime =
+      cost.breakdown.travelTime +
+      totalServiceTime +
+      cost.breakdown.drivingBreaks;
+
 
     const distanceMeters = sumRouteDistance(
       vehicleRoute,
@@ -103,6 +107,7 @@ export async function runOptimizationService(
       totalWorkTime,
       totalDistanceKm: distanceKm,
       estimatedPrice: route.ratePerKm ? distanceKm * route.ratePerKm : null,
+      drivingBreaks: cost.breakdown.drivingBreaks,
       feasible: cost.feasible,
     };
   });
