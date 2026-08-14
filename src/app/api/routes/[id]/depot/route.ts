@@ -1,5 +1,7 @@
 import { setRouteDepotService } from "@/modules/routes/services/set-route-depot.service";
 import { errorResponse, successResponse } from "@/shared/utils/api-response";
+import { auth } from "@clerk/nextjs/server";
+
 import { NextRequest } from "next/server";
 import { z } from "zod";
 
@@ -16,8 +18,12 @@ export async function PUT(
   },
 ) {
   try {
+     const { userId } = await auth();
+     if (!userId) return errorResponse("Unauthorized", 401);
+
     const body = await req.json();
     const parsed = schema.parse(body);
+
     const { id } = await params;
     const route = await setRouteDepotService(id, parsed.pointId);
 

@@ -32,3 +32,10 @@ export async function deletePoint(pointId: string) {
     where: { id: pointId },
   });
 }
+
+export async function getPointWithRoute(pointId: string) {
+  return prisma.point.findUnique({
+    where: { id: pointId },
+    include: { route: true },
+  });
+}
