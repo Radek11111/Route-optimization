@@ -1,4 +1,5 @@
 import { createMatrixProvider } from "@/domain/matrix/factory/createMatrixProvider";
+import { optimizeRateLimit } from "@/lib/rateLimit";
 import { getRouteById } from "@/modules/routes/repositories/route-repository";
 import { runOptimizationService } from "@/modules/routes/services/run-optimatization.service";
 import { saveOptimizationResultService } from "@/modules/routes/services/save-OptimizationResult.service";
@@ -14,24 +15,42 @@ export async function POST(
   },
 ) {
   try {
-       const { userId } = await auth();
-       if (!userId) {
-         return NextResponse.json(
-           { success: false, message: "Unauthorized" },
-           { status: 401 },
-         );
-       }
+    const { userId } = await auth();
+    if (!userId) {
+      return NextResponse.json(
+        { success: false, message: "Unauthorized" },
+        { status: 401 },
+      );
+    }
+
+    const { success, limit, remaining, reset } =
+      await optimizeRateLimit.limit(userId);
+    if (!success) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: "Too many optimization requests. Try again later.",
+        },
+        {
+          status: 429,
+          headers: {
+            "X-RateLimit-Limit": limit.toString(),
+            "X-RateLimit-Remaining": remaining.toString(),
+            "X-RateLimit-Reset": reset.toString(),
+          },
+        },
+      );
+    }
 
     const { id } = await params;
 
-     const route = await getRouteById(id);
-     if (!route || route.userId !== userId) {
-       return NextResponse.json(
-         { success: false, message: "Route not found" },
-         { status: 404 },
-       );
-     }
-
+    const route = await getRouteById(id);
+    if (!route || route.userId !== userId) {
+      return NextResponse.json(
+        { success: false, message: "Route not found" },
+        { status: 404 },
+      );
+    }
 
     const matrixProvider = createMatrixProvider();
 
