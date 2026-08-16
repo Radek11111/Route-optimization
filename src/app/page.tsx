@@ -1,10 +1,13 @@
-"use client";
-import { RoutesListClient } from "@/features/routes/components/RoutesListClient";
+import { auth } from "@clerk/nextjs/server";
+import { redirect } from "next/navigation";
+import HomeView from "@/components/HomeView";
 
-export default function Home() {
-  return (
-    <div className="">
-      Home
-    </div>
-  );
+export default async function Page() {
+  const { userId } = await auth();
+
+  if (userId) {
+    redirect("/dashboard");
+  }
+
+  return <HomeView />;
 }
