@@ -1,5 +1,6 @@
 import { Constraints } from "@/domain/types/Constraints";
 import { Route } from "@/generated/prisma/client";
+import { DEFAULT_EU_DRIVING_RULES } from "@/lib/drivingRules";
 
 export function mapConstraintsToDomain(route: Route): Constraints {
   return {
@@ -14,5 +15,6 @@ export function mapConstraintsToDomain(route: Route): Constraints {
           }
         : undefined,
     returnToDepot: route.returnToDepot,
+    drivingRules: DEFAULT_EU_DRIVING_RULES,
   };
 }

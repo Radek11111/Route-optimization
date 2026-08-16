@@ -1,3 +1,4 @@
+import { useAuth } from "@clerk/nextjs";
 import { useQuery } from "@tanstack/react-query";
 
 async function fetchRoutes() {
@@ -8,8 +9,10 @@ async function fetchRoutes() {
 }
 
 export function useRoutes() {
+  const { isLoaded, isSignedIn } = useAuth();
   return useQuery({
     queryKey: ["routes"],
     queryFn: fetchRoutes,
+    enabled: isLoaded && isSignedIn,
   });
 }

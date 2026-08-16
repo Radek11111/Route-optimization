@@ -7,5 +7,7 @@ export function createEmptyBreakdown(): CostBreakdown {
     timeWindowPenalty: 0,
     priorityPenalty: 0,
     returnToDepotPenalty: 0,
+    drivingRulesPenalty: 0,
+    drivingBreaks: 0,
   };
 }

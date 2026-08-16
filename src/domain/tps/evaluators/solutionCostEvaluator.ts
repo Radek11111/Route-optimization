@@ -33,6 +33,7 @@ export function solutionCostEvaluator(
     breakdown.priorityPenalty += result.breakdown.priorityPenalty;
     breakdown.drivingRulesPenalty += result.breakdown.drivingRulesPenalty;
 
+
     if (!result.feasible) {
       feasible = false;
     }

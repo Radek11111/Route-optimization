@@ -17,9 +17,7 @@ export interface Constraints {
 export interface DrivingRules {
   maxContinuousDrivingMinutes: number;
   drivingBreakMinutes: number;
-
   splitBreak?: { first: number; second: number };
-
   maxDailyDrivingMinutes: number;
   maxDailyDrivingExceptionMinutes: number;
   maxExceptionsPerWeek: number;

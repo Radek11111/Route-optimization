@@ -8,6 +8,8 @@ export type VehicleStatsDto = {
   totalWorkTime: number;
   totalDistanceKm: number;
   estimatedPrice: number | null;
+  drivingBreaks: number;
+
   feasible: boolean;
 };
 

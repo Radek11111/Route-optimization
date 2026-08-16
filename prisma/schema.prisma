@@ -9,11 +9,6 @@ datasource db {
   
 }
 
-enum UserRole {
-  MEMBER
-  ADMIN
-  GUEST
-}
 
 enum RouteStatus {
    DRAFT
@@ -28,18 +23,7 @@ enum SolutionStatus {
   FAILED
 }
 
-model User {
-  id        String   @id @default(uuid())
-  email     String   @unique
-  name      String?
 
-  role UserRole @default(MEMBER)
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  routes Route[]
-  @@index([email])
-}
 
 model Route {
   id        String   @id @default(uuid())
@@ -52,7 +36,7 @@ model Route {
   vehicleCount Int @default(1)
 
   userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
