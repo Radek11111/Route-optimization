@@ -9,6 +9,8 @@ export function createSimulationState(
     currentTime: constraints.workStartMinutes,
     totalTravelTime: 0,
     totalServiceTime: 0,
+    totalBreakTime: 0,
+    totalRestTime: 0,
     lastPointIndex: depotIndex,
 
     continuousDrivingMinutes: 0,
@@ -16,6 +18,7 @@ export function createSimulationState(
     exceptionsUsed: 0,
     reducedRestUsed: 0,
     totalDrivingRuleBreaks: 0,
+    
 
     violations: {
       workTime: 0,

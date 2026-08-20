@@ -11,7 +11,6 @@ import { calculatePriorityPenalty } from "../penalties/priority.penalty";
 import { calculateReturnPenalty } from "../penalties/returnToDepot.penalty";
 import { calculateDrivingRulesPenalty } from "../penalties/drivingRules.penalty";
 
-
 export function routeCostEvaluator(
   route: number[],
   matrix: number[][],
@@ -36,7 +35,7 @@ export function routeCostEvaluator(
     priorityPenalty,
     returnToDepotPenalty,
     drivingRulesPenalty,
-    drivingBreaks: state.totalDrivingRuleBreaks,
+    drivingBreaks: state.totalBreakTime + state.totalRestTime,
   };
 
   const totalCost =
