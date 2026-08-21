@@ -28,11 +28,11 @@ export function solutionCostEvaluator(
 
     breakdown.travelTime += result.breakdown.travelTime;
     breakdown.workTimePenalty += result.breakdown.workTimePenalty;
+    breakdown.shiftEndPenalty += result.breakdown.shiftEndPenalty;
     breakdown.timeWindowPenalty += result.breakdown.timeWindowPenalty;
     breakdown.returnToDepotPenalty += result.breakdown.returnToDepotPenalty;
     breakdown.priorityPenalty += result.breakdown.priorityPenalty;
     breakdown.drivingRulesPenalty += result.breakdown.drivingRulesPenalty;
-
 
     if (!result.feasible) {
       feasible = false;

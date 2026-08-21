@@ -567,4 +567,64 @@ describe("simulateRoute", () => {
     expect(state.totalBreakTime).toBe(15);
     expect(state.continuousDrivingMinutes).toBe(1);
   });
+
+  it("inserts generic break based on breakRules when drivingRules is undefined", () => {
+    const points: Point[] = [
+      { id: "depot", latitude: 0, longitude: 0 },
+      { id: "A", latitude: 0, longitude: 0, serviceTimeMinutes: 20 },
+      { id: "B", latitude: 0, longitude: 0 },
+    ];
+
+    const matrix = [
+      [0, 50, 0],
+      [0, 0, 50],
+      [0, 0, 0],
+    ];
+
+    const constraints: Constraints = {
+      workStartMinutes: 0,
+      workEndMinutes: 100000,
+      maxWorkDurationMinutes: 100000,
+      drivingRules: undefined,
+      breakRules: { afterMinutes: 60, breakDurationMinutes: 10 },
+    };
+
+    const state = createSimulationState(0, constraints);
+    simulateRoute([1, 2], matrix, points, constraints, 0, state);
+
+    expect(state.totalBreakTime).toBe(10);
+  });
+
+  it("flags shiftEnd violation when currentTime exceeds workEndMinutes", () => {
+    const constraints: Constraints = {
+      workStartMinutes: 0,
+      workEndMinutes: 30,
+      maxWorkDurationMinutes: 100000,
+    };
+
+    const state = createSimulationState(0, constraints);
+
+    const matrix = [
+      [0, 40],
+      [40, 0],
+    ];
+
+    const points: Point[] = [
+      {
+        id: "depot",
+        latitude: 0,
+        longitude: 0,
+      },
+      {
+        id: "point-1",
+        latitude: 1,
+        longitude: 1,
+      },
+    ];
+
+    simulateRoute([1], matrix, points, constraints, 0, state);
+
+    expect(state.currentTime).toBe(40);
+    expect(state.violations.shiftEnd).toBeGreaterThan(0);
+  });
 });

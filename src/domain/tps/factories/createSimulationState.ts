@@ -18,10 +18,14 @@ export function createSimulationState(
     exceptionsUsed: 0,
     reducedRestUsed: 0,
     totalDrivingRuleBreaks: 0,
+    exceptionUsedThisCycle: false,
+
+    workSinceBreakMinutes: 0,
     
 
     violations: {
       workTime: 0,
+      shiftEnd: 0,
       timeWindows: [],
       returnViolation: false,
 

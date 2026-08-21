@@ -1,6 +1,7 @@
 export interface CostBreakdown {
   travelTime: number;
   workTimePenalty: number;
+  shiftEndPenalty: number;
   timeWindowPenalty: number;
   returnToDepotPenalty: number;
   priorityPenalty: number;

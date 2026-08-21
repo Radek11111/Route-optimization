@@ -23,10 +23,10 @@ export function simulateRoute(
       );
     }
 
-    consumeDriving(state, legDuration, constraints.drivingRules);
+    consumeDriving(state, legDuration, constraints);
 
     handleTimeWindow(state, point);
-    applyServiceTime(state, point);
+    applyServiceTime(state, point, constraints);
     state.lastPointIndex = pointIndex;
   }
 
@@ -57,38 +57,68 @@ function advanceTime(
   state.totalRestTime += minutes;
   state.continuousDrivingMinutes = 0;
   state.drivingSinceRestMinutes = 0;
+  state.exceptionUsedThisCycle = false;
 }
 
 function consumeDriving(
   state: RouteSimulationState,
   totalMinutes: number,
-  rules: DrivingRules | undefined,
+  constraints: Constraints,
 ) {
-  if (!rules) {
-    advanceTime(state, totalMinutes, "driving");
+  const { drivingRules, breakRules } = constraints;
+  if (!drivingRules) {
+    consumeDrivingWithBreakRulesFallback(state, totalMinutes, breakRules);
     return;
   }
+
   let remaining = totalMinutes;
 
   while (remaining > 0) {
     const continuousCapacity =
-      rules.maxContinuousDrivingMinutes - state.continuousDrivingMinutes;
-    const dailyCapacity = getDailyDrivingCapacity(state, rules);
+      drivingRules.maxContinuousDrivingMinutes - state.continuousDrivingMinutes;
 
-    const chunk = Math.max(
-      0,
-      Math.min(remaining, continuousCapacity, dailyCapacity),
-    );
-    if (chunk > 0) {
-      advanceTime(state, chunk, "driving");
-      remaining -= chunk;
-      if (remaining <= 0) break;
-    }
-    if (state.continuousDrivingMinutes >= rules.maxContinuousDrivingMinutes) {
-      advanceTime(state, rules.drivingBreakMinutes, "shortBreak");
+    if (continuousCapacity <= 0) {
+      advanceTime(state, drivingRules.drivingBreakMinutes, "shortBreak");
       continue;
     }
-    insertDailyRest(state, rules);
+
+    const dailyCapacity = getDailyDrivingCapacity(state, drivingRules);
+
+    if (dailyCapacity <= 0) {
+      insertDailyRest(state, drivingRules);
+      continue;
+    }
+
+    const chunk = Math.min(remaining, continuousCapacity, dailyCapacity);
+    advanceTime(state, chunk, "driving");
+    remaining -= chunk;
+  }
+}
+
+function consumeDrivingWithBreakRulesFallback(
+  state: RouteSimulationState,
+  totalMinutes: number,
+  breakRules: Constraints["breakRules"],
+) {
+  if (!breakRules) {
+    advanceTime(state, totalMinutes, "driving");
+    return;
+  }
+
+  let remaining = totalMinutes;
+
+  while (remaining > 0) {
+    const capacity = breakRules.afterMinutes - state.workSinceBreakMinutes;
+
+    if (capacity <= 0) {
+      advanceTime(state, breakRules.breakDurationMinutes, "shortBreak");
+      state.workSinceBreakMinutes = 0;
+      continue;
+    }
+    const chunk = Math.min(remaining, capacity);
+    advanceTime(state, chunk, "driving");
+    state.workSinceBreakMinutes += chunk;
+    remaining -= chunk;
   }
 }
 
@@ -101,11 +131,15 @@ function getDailyDrivingCapacity(
 
   if (regularCapacity > 0) return regularCapacity;
 
-  if (state.exceptionsUsed < rules.maxExceptionsPerWeek) {
+  if (
+    !state.exceptionUsedThisCycle &&
+    state.exceptionsUsed < rules.maxExceptionsPerWeek
+  ) {
     const exceptionCapacity =
       rules.maxDailyDrivingExceptionMinutes - state.drivingSinceRestMinutes;
 
     if (exceptionCapacity > 0) {
+      state.exceptionUsedThisCycle = true;
       state.exceptionsUsed++;
       return exceptionCapacity;
     }
@@ -142,11 +176,19 @@ function handleTimeWindow(state: RouteSimulationState, point: Point) {
   }
 }
 
-function applyServiceTime(state: RouteSimulationState, point: Point) {
+function applyServiceTime(
+  state: RouteSimulationState,
+  point: Point,
+  constraints: Constraints,
+) {
   if (!point.serviceTimeMinutes) return;
 
   state.totalServiceTime += point.serviceTimeMinutes;
   state.currentTime += point.serviceTimeMinutes;
+
+  if (!constraints.drivingRules && constraints.breakRules) {
+    state.workSinceBreakMinutes += point.serviceTimeMinutes;
+  }
 }
 
 function handleReturnToDepot(
@@ -163,7 +205,7 @@ function handleReturnToDepot(
   if (state.lastPointIndex === depotIndex) return;
 
   const returnTime = matrix[state.lastPointIndex][depotIndex];
-  consumeDriving(state, returnTime, constraints.drivingRules);
+  consumeDriving(state, returnTime, constraints);
 
   state.lastPointIndex = depotIndex;
 }

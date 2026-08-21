@@ -13,6 +13,10 @@ export function finalizeSimulation(
       workedMinutes - constraints.maxWorkDurationMinutes;
   }
 
+  if (state.currentTime > constraints.workEndMinutes) {
+    state.violations.shiftEnd = state.currentTime - constraints.workEndMinutes;
+  }
+
   if (constraints.returnToDepot && state.lastPointIndex !== depotIndex) {
     state.violations.returnViolation = true;
   }
