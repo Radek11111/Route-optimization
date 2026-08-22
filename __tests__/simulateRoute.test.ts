@@ -61,9 +61,7 @@ describe("simulateRoute", () => {
 
     simulateRoute(route, matrix, points, baseConstraints, 0, state);
 
-    // depot -> A = 10
-    // A -> B = 15
-    // B -> depot = 20
+
     expect(state.totalTravelTime).toBe(45);
   });
 

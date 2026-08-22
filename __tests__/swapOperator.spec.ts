@@ -1,5 +1,6 @@
 import { solutionCostEvaluator } from "@/domain/tps/evaluators/solutionCostEvaluator";
 import { swapOperator } from "@/domain/tps/heuristics/swapOperator";
+import { Constraints } from "@/domain/types/Constraints";
 import { describe, expect, it } from "vitest";
 
 describe("swapOperator", () => {
@@ -88,5 +89,47 @@ describe("swapOperator", () => {
     ).totalCost;
 
     expect(after).toBeLessThanOrEqual(before);
+  });
+
+  it("swapOperator's totalCost equals a fresh solutionCostEvaluator call", () => {
+    const matrix = [
+      [0, 10, 20, 15],
+      [10, 0, 12, 18],
+      [20, 12, 0, 9],
+      [15, 18, 9, 0],
+    ];
+
+    const points = [
+      { id: "depot", latitude: 0, longitude: 0 },
+      { id: "A", latitude: 0, longitude: 0 },
+      { id: "B", latitude: 0, longitude: 0 },
+      { id: "C", latitude: 0, longitude: 0 },
+    ];
+
+    const constraints: Constraints = {
+      workStartMinutes: 0,
+      workEndMinutes: 500,
+      maxWorkDurationMinutes: 500,
+    };
+
+    const input = { matrix, points, constraints, depotIndex: 0 };
+    const initialSolution = {
+      routes: [[1, 2], [3]],
+      unassigned: [],
+      totalCost: 0,
+      feasible: true,
+    };
+    const result = swapOperator(initialSolution, input);
+
+    const recomputed = solutionCostEvaluator(
+      result.solution.routes,
+      matrix,
+      points,
+      constraints,
+      0,
+    );
+
+    expect(result.solution.totalCost).toBeCloseTo(recomputed.totalCost);
+    expect(result.solution.feasible).toBe(recomputed.feasible);
   });
 });
