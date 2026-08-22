@@ -3,7 +3,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 async function setDepot(routeId: string, pointId: string) {
   const response = await fetch(`/api/routes/${routeId}/depot`, {
     method: "PUT",
-    headers: { "Conten-type": "application/json " },
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ pointId }),
   });
   if (!response.ok) throw new Error("Failed to set depot");

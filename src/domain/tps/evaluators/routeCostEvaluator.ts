@@ -10,7 +10,7 @@ import { calculateTimeWindowPenalty } from "../penalties/timeWindow.penalty";
 import { calculatePriorityPenalty } from "../penalties/priority.penalty";
 import { calculateReturnPenalty } from "../penalties/returnToDepot.penalty";
 import { calculateDrivingRulesPenalty } from "../penalties/drivingRules.penalty";
-
+import { calculateShiftEndPenalty } from "../penalties/shiftEnd.penalty";
 
 export function routeCostEvaluator(
   route: number[],
@@ -24,6 +24,7 @@ export function routeCostEvaluator(
   simulateRoute(route, matrix, points, constraints, depotIndex, state);
 
   const workTimePenalty = calculateWorkTimePenalty(state);
+  const shiftEndPenalty = calculateShiftEndPenalty(state);
   const timeWindowPenalty = calculateTimeWindowPenalty(state);
   const priorityPenalty = calculatePriorityPenalty(route, points);
   const returnToDepotPenalty = calculateReturnPenalty(state);
@@ -31,26 +32,34 @@ export function routeCostEvaluator(
 
   const breakdown: CostBreakdown = {
     travelTime: state.totalTravelTime,
+    serviceTime: state.totalServiceTime,
+    waitingTime: state.totalWaitingTime,
+    breakTime: state.totalBreakTime,
+    restTime: state.totalRestTime,
+
     workTimePenalty,
+    shiftEndPenalty,
     timeWindowPenalty,
     priorityPenalty,
     returnToDepotPenalty,
     drivingRulesPenalty,
-    drivingBreaks: state.totalDrivingRuleBreaks,
   };
 
   const totalCost =
     breakdown.travelTime +
     breakdown.workTimePenalty +
+    breakdown.shiftEndPenalty +
     breakdown.timeWindowPenalty +
     breakdown.priorityPenalty +
     breakdown.returnToDepotPenalty +
     breakdown.drivingRulesPenalty;
 
   const feasible =
-    !state.violations.workTime &&
+    state.violations.workTime === 0 &&
+    state.violations.shiftEnd === 0 &&
     state.violations.timeWindows.length === 0 &&
     !state.violations.returnViolation;
+  state.violations.drivingRulesViolations.length === 0;
   return {
     totalCost,
     breakdown,

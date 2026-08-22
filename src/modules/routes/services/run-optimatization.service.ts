@@ -8,6 +8,7 @@ import { sumSolutionDistance } from "@/features/solutions/sumSolutionDistance";
 import { calculateNaiveCost } from "@/features/solutions/calculateNaiveCost";
 import { routeCostEvaluator } from "@/domain/tps/evaluators/routeCostEvaluator";
 import { sumRouteDistance } from "@/features/solutions/sumRouteDistance";
+import { solutionCostEvaluator } from "@/domain/tps/evaluators/solutionCostEvaluator";
 
 export async function runOptimizationService(
   routeId: string,
@@ -44,6 +45,14 @@ export async function runOptimizationService(
     depotIndex,
     vehicleCount: route.vehicleCount,
   });
+
+  const solutionBreakdown = solutionCostEvaluator(
+    solution.routes,
+    matrix.durationMatrix,
+    allDomainPoints,
+    constraints,
+    depotIndex,
+  ).breakdown;
 
   const totalDistanceMeters = sumSolutionDistance(
     solution,
@@ -88,9 +97,8 @@ export async function runOptimizationService(
 
     const totalWorkTime =
       cost.breakdown.travelTime +
-      totalServiceTime +
-      cost.breakdown.drivingBreaks;
-
+      cost.breakdown.serviceTime +
+      cost.breakdown.waitingTime;
 
     const distanceMeters = sumRouteDistance(
       vehicleRoute,
@@ -103,11 +111,13 @@ export async function runOptimizationService(
     return {
       vehicleIndex,
       totalTravelTime: cost.breakdown.travelTime,
-      totalServiceTime,
+      totalServiceTime: cost.breakdown.serviceTime,
+      totalWaitingTime: cost.breakdown.waitingTime,
+      totalBreakTime: cost.breakdown.breakTime,
+      totalRestTime: cost.breakdown.restTime,
       totalWorkTime,
       totalDistanceKm: distanceKm,
       estimatedPrice: route.ratePerKm ? distanceKm * route.ratePerKm : null,
-      drivingBreaks: cost.breakdown.drivingBreaks,
       feasible: cost.feasible,
     };
   });
@@ -129,5 +139,6 @@ export async function runOptimizationService(
     savedDistanceKm,
     savedPercent,
     vehicleStats,
+    solutionBreakdown,
   };
 }

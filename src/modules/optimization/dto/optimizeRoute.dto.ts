@@ -5,11 +5,12 @@ export type VehicleStatsDto = {
   vehicleIndex: number;
   totalServiceTime: number;
   totalTravelTime: number;
+  totalWaitingTime: number;
+  totalBreakTime: number;
+  totalRestTime: number;
   totalWorkTime: number;
   totalDistanceKm: number;
   estimatedPrice: number | null;
-  drivingBreaks: number;
-
   feasible: boolean;
 };
 

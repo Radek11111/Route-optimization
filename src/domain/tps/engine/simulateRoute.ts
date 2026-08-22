@@ -2,8 +2,9 @@ import { Constraints, DrivingRules } from "@/domain/types/Constraints";
 import { Point } from "@/domain/types/Point";
 import { RouteSimulationState } from "@/domain/types/RouteSimulationState";
 import { finalizeSimulation } from "./finalizeSimulation";
+import { wait } from "next/dist/lib/wait";
 
-type advanceTime = "driving" | "break";
+type advanceKind = "driving" | "shortBreak" | "dailyRest";
 
 export function simulateRoute(
   route: number[],
@@ -23,12 +24,10 @@ export function simulateRoute(
       );
     }
 
-    enforceDrivingBreak(state, legDuration, constraints.drivingRules);
-    enforceDailyRest(state, legDuration, constraints.drivingRules);
+    consumeDriving(state, legDuration, constraints);
 
-    travelToPoint(state, distanceMatrix, pointIndex);
     handleTimeWindow(state, point);
-    applyServiceTime(state, point);
+    applyServiceTime(state, point, constraints);
     state.lastPointIndex = pointIndex;
   }
 
@@ -36,11 +35,10 @@ export function simulateRoute(
   finalizeSimulation(state, constraints, depotIndex);
   return state;
 }
-
 function advanceTime(
   state: RouteSimulationState,
   minutes: number,
-  kind: advanceTime,
+  kind: advanceKind,
 ) {
   state.currentTime += minutes;
 
@@ -48,100 +46,166 @@ function advanceTime(
     state.totalTravelTime += minutes;
     state.continuousDrivingMinutes += minutes;
     state.drivingSinceRestMinutes += minutes;
-  } else {
-    state.totalDrivingRuleBreaks += minutes;
+    return;
+  }
+
+  if (kind === "shortBreak") {
+    state.totalBreakTime += minutes;
     state.continuousDrivingMinutes = 0;
-    state.drivingSinceRestMinutes = 0;
+    return;
+  }
+
+  state.totalRestTime += minutes;
+  state.continuousDrivingMinutes = 0;
+  state.drivingSinceRestMinutes = 0;
+  state.exceptionUsedThisCycle = false;
+}
+
+function consumeDriving(
+  state: RouteSimulationState,
+  totalMinutes: number,
+  constraints: Constraints,
+) {
+  const { drivingRules, breakRules } = constraints;
+  if (!drivingRules) {
+    consumeDrivingWithBreakRulesFallback(state, totalMinutes, breakRules);
+    return;
+  }
+
+  let remaining = totalMinutes;
+
+  while (remaining > 0) {
+    const continuousCapacity =
+      drivingRules.maxContinuousDrivingMinutes - state.continuousDrivingMinutes;
+
+    if (continuousCapacity <= 0) {
+      advanceTime(state, drivingRules.drivingBreakMinutes, "shortBreak");
+      continue;
+    }
+
+    const dailyCapacity = getDailyDrivingCapacity(state, drivingRules);
+
+    if (dailyCapacity <= 0) {
+      insertDailyRest(state, drivingRules);
+      continue;
+    }
+
+    const chunk = Math.min(remaining, continuousCapacity, dailyCapacity);
+    advanceTime(state, chunk, "driving");
+    remaining -= chunk;
   }
 }
 
-function enforceDrivingBreak(
+function consumeDrivingWithBreakRulesFallback(
   state: RouteSimulationState,
-  legDuration: number,
-  rules: DrivingRules | undefined,
+  totalMinutes: number,
+  breakRules: Constraints["breakRules"],
 ) {
-  if (!rules) return;
-
-  const wouldExceed =
-    state.continuousDrivingMinutes + legDuration >
-    rules.maxContinuousDrivingMinutes;
-
-  if (!wouldExceed) return;
-
-  advanceTime(state, rules.drivingBreakMinutes, "break");
-}
-
-function enforceDailyRest(
-  state: RouteSimulationState,
-  legDuration: number,
-  rules: DrivingRules | undefined,
-) {
-  if (!rules) return;
-
-  const overRegularLimit =
-    state.drivingSinceRestMinutes + legDuration > rules.maxDailyDrivingMinutes;
-
-  if (!overRegularLimit) return;
-
-  const exceptionAvailable = state.exceptionsUsed < rules.maxExceptionsPerWeek;
-
-  if (exceptionAvailable) {
-    state.exceptionsUsed++;
-
-    const stillExceedsWithException =
-      state.drivingSinceRestMinutes + legDuration >
-      rules.maxDailyDrivingExceptionMinutes;
-
-    if (!stillExceedsWithException) return;
+  if (!breakRules) {
+    advanceTime(state, totalMinutes, "driving");
+    return;
   }
 
-  const reducedRestAvailable =
-    state.reducedRestUsed < rules.maxReducedRestCount;
-  const restMinutes = reducedRestAvailable
+  let remaining = totalMinutes;
+
+  while (remaining > 0) {
+    const capacity = breakRules.afterMinutes - state.workSinceBreakMinutes;
+
+    if (capacity <= 0) {
+      advanceTime(state, breakRules.breakDurationMinutes, "shortBreak");
+      state.workSinceBreakMinutes = 0;
+      continue;
+    }
+    const chunk = Math.min(remaining, capacity);
+    advanceTime(state, chunk, "driving");
+    state.workSinceBreakMinutes += chunk;
+    remaining -= chunk;
+  }
+}
+
+function getDailyDrivingCapacity(
+  state: RouteSimulationState,
+  rules: DrivingRules,
+): number {
+  const regularCapacity =
+    rules.maxDailyDrivingMinutes - state.drivingSinceRestMinutes;
+
+  if (regularCapacity > 0) return regularCapacity;
+
+  if (
+    !state.exceptionUsedThisCycle &&
+    state.exceptionsUsed < rules.maxExceptionsPerWeek
+  ) {
+    const exceptionCapacity =
+      rules.maxDailyDrivingExceptionMinutes - state.drivingSinceRestMinutes;
+
+    if (exceptionCapacity > 0) {
+      state.exceptionUsedThisCycle = true;
+      state.exceptionsUsed++;
+      return exceptionCapacity;
+    }
+  }
+
+  return 0;
+}
+
+function insertDailyRest(state: RouteSimulationState, rules: DrivingRules) {
+  const reducedAvailable = state.reducedRestUsed < rules.maxReducedRestCount;
+  const restMinutes = reducedAvailable
     ? rules.reducedDailyRestMinutes
     : rules.regularDailyRestMinutes;
 
-  if (reducedRestAvailable) state.reducedRestUsed++;
+  if (reducedAvailable) state.reducedRestUsed++;
 
-  advanceTime(state, restMinutes, "break");
-}
-
-function travelToPoint(
-  state: RouteSimulationState,
-  matrix: number[][],
-  nextIndex: number,
-) {
-  const travelTime = matrix[state.lastPointIndex]?.[nextIndex];
-  if (travelTime === undefined) {
-    throw new Error(
-      `Matrix missing value ${state.lastPointIndex} -> ${nextIndex}`,
-    );
-  }
-  advanceTime(state, travelTime, "driving");
+  advanceTime(state, restMinutes, "dailyRest");
 }
 
 function handleTimeWindow(state: RouteSimulationState, point: Point) {
   if (!point.timeWindow) return;
 
+  const { start, end } = point.timeWindow;
   const arrival = state.currentTime % 1440;
+  const isOvernight = start > end;
 
-  if (arrival < point.timeWindow.start) {
-    state.currentTime += point.timeWindow.start - arrival;
+  const withinWindow = isOvernight
+    ? arrival >= start || arrival <= end
+    : arrival >= start && arrival <= end;
+
+  if (withinWindow) return;
+
+  if (isOvernight) {
+    const waiting = start - arrival;
+    state.currentTime += waiting;
+    state.totalWaitingTime += waiting;
     return;
   }
-  if (arrival > point.timeWindow.end) {
-    state.violations.timeWindows.push({
-      pointId: point.id,
-      violation: arrival - point.timeWindow.end,
-    });
+
+  if (arrival < start) {
+    const waiting = start - arrival;
+    state.currentTime += waiting;
+    state.totalWaitingTime += waiting;
+    return;
   }
+
+  state.violations.timeWindows.push({
+    pointId: point.id,
+    violation: arrival - end,
+  });
 }
 
-function applyServiceTime(state: RouteSimulationState, point: Point) {
+function applyServiceTime(
+  state: RouteSimulationState,
+  point: Point,
+  constraints: Constraints,
+) {
   if (!point.serviceTimeMinutes) return;
 
   state.totalServiceTime += point.serviceTimeMinutes;
   state.currentTime += point.serviceTimeMinutes;
+
+  if (!constraints.drivingRules && constraints.breakRules) {
+    state.workSinceBreakMinutes += point.serviceTimeMinutes;
+  }
 }
 
 function handleReturnToDepot(
@@ -158,11 +222,7 @@ function handleReturnToDepot(
   if (state.lastPointIndex === depotIndex) return;
 
   const returnTime = matrix[state.lastPointIndex][depotIndex];
-
-  enforceDrivingBreak(state, returnTime, constraints.drivingRules);
-  enforceDailyRest(state, returnTime, constraints.drivingRules);
-
-  advanceTime(state, returnTime, "driving");
+  consumeDriving(state, returnTime, constraints);
 
   state.lastPointIndex = depotIndex;
 }
