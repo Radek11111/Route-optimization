@@ -5,21 +5,23 @@ import {
 import { createRouteSchema } from "@/modules/routes/schemas/create-route.schema";
 import { createRouteService } from "@/modules/routes/services/create-route.service";
 import { errorResponse, successResponse } from "@/shared/utils/api-response";
+import {
+  requireAuth,
+  requireRouteOwner,
+} from "@/shared/utils/require-route-owner";
 import { auth } from "@clerk/nextjs/server";
 
 export async function POST(request: Request) {
   try {
-    const { userId } = await auth();
-    if (!userId) {
-      return errorResponse("Unauthorized", 401);
-    }
+    const auth = await requireAuth();
+    if (!auth.ok) return auth.response;
 
     const body = await request.json();
     const parsed = createRouteSchema.parse(body);
 
     const route = await createRouteService({
       ...parsed,
-      userId,
+      userId: auth.userId,
     });
     return successResponse(route, 200);
   } catch (error) {
@@ -31,12 +33,10 @@ export async function POST(request: Request) {
 
 export async function GET() {
   try {
-    const { userId } = await auth();
-    if (!userId) {
-      return errorResponse("Unauthorized", 401);
-    }
+    const auth = await requireAuth();
+    if (!auth.ok) return auth.response;
 
-    const routes = await getRoutesByUserId(userId);
+    const routes = await getRoutesByUserId(auth.userId);
 
     return successResponse(routes, 200);
   } catch (error) {

@@ -3,6 +3,7 @@ import { optimizeRateLimit } from "@/lib/rateLimit";
 import { getRouteById } from "@/modules/routes/repositories/route-repository";
 import { runOptimizationService } from "@/modules/routes/services/run-optimatization.service";
 import { saveOptimizationResultService } from "@/modules/routes/services/save-OptimizationResult.service";
+import { requireRouteOwner } from "@/shared/utils/require-route-owner";
 import { auth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 
@@ -15,16 +16,13 @@ export async function POST(
   },
 ) {
   try {
-    const { userId } = await auth();
-    if (!userId) {
-      return NextResponse.json(
-        { success: false, message: "Unauthorized" },
-        { status: 401 },
-      );
-    }
+    const { id } = await params;
+    const auth = await requireRouteOwner(id);
+    if (!auth.ok) return auth.response;
 
-    const { success, limit, remaining, reset } =
-      await optimizeRateLimit.limit(userId);
+    const { success, limit, remaining, reset } = await optimizeRateLimit.limit(
+      auth.userId,
+    );
     if (!success) {
       return NextResponse.json(
         {
@@ -39,16 +37,6 @@ export async function POST(
             "X-RateLimit-Reset": reset.toString(),
           },
         },
-      );
-    }
-
-    const { id } = await params;
-
-    const route = await getRouteById(id);
-    if (!route || route.userId !== userId) {
-      return NextResponse.json(
-        { success: false, message: "Route not found" },
-        { status: 404 },
       );
     }
 
