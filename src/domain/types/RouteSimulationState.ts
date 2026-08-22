@@ -4,6 +4,7 @@ export interface RouteSimulationState {
   totalServiceTime: number;
   totalBreakTime: number;
   totalRestTime: number;
+  totalWaitingTime: number;
 
   lastPointIndex: number;
 

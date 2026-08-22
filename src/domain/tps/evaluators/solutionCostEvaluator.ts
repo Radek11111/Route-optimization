@@ -27,6 +27,11 @@ export function solutionCostEvaluator(
     totalCost += result.totalCost;
 
     breakdown.travelTime += result.breakdown.travelTime;
+    breakdown.serviceTime += result.breakdown.serviceTime;
+    breakdown.waitingTime += result.breakdown.waitingTime;
+    breakdown.breakTime += result.breakdown.breakTime;
+    breakdown.restTime += result.breakdown.restTime;
+
     breakdown.workTimePenalty += result.breakdown.workTimePenalty;
     breakdown.shiftEndPenalty += result.breakdown.shiftEndPenalty;
     breakdown.timeWindowPenalty += result.breakdown.timeWindowPenalty;

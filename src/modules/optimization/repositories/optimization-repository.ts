@@ -2,6 +2,7 @@ import { Point } from "@/domain/types/Point";
 import { Solution } from "@/domain/types/Solution";
 import prisma from "@/lib/prisma";
 import { VehicleStatsDto } from "../dto/optimizeRoute.dto";
+import { CostBreakdown } from "@/domain/types/CostBreakdown";
 
 export async function getRouteForOptimization(routeId: string) {
   return prisma.route.findUnique({
@@ -33,6 +34,7 @@ export async function saveFullSolution(data: {
   savedDistanceKm?: number;
   savedPercent?: number;
   vehicleStats?: VehicleStatsDto[] | null;
+  breakdown?: CostBreakdown;
 }) {
   const {
     routeId,
@@ -41,6 +43,7 @@ export async function saveFullSolution(data: {
     depotPoint,
     totalDistanceKm,
     estimatedPrice,
+    breakdown,
   } = data;
 
   const allPoints = [depotPoint, ...points];
@@ -58,6 +61,18 @@ export async function saveFullSolution(data: {
         naiveDistanceKm: data.naiveDistanceKm,
         savedDistanceKm: data.savedDistanceKm,
         savedPercent: data.savedPercent,
+
+        travelTime: breakdown?.travelTime ?? 0,
+        serviceTime: breakdown?.serviceTime ?? 0,
+        waitingTime: breakdown?.waitingTime ?? 0,
+        breakTime: breakdown?.breakTime ?? 0,
+        restTime: breakdown?.restTime ?? 0,
+        workTimePenalty: breakdown?.workTimePenalty ?? 0,
+        shiftEndPenalty: breakdown?.shiftEndPenalty ?? 0,
+        timeWindowPenalty: breakdown?.timeWindowPenalty ?? 0,
+        returnToDepotPenalty: breakdown?.returnToDepotPenalty ?? 0,
+        priorityPenalty: breakdown?.priorityPenalty ?? 0,
+        drivingRulesPenalty: breakdown?.drivingRulesPenalty ?? 0,
       },
     });
 
@@ -76,11 +91,14 @@ export async function saveFullSolution(data: {
         data: {
           solutionId: savedSolution.id,
           vehicleIndex,
-          feasible: solution.feasible,
+          feasible: stats?.feasible ?? solution.feasible,
           totalTravelTime: stats?.totalTravelTime ?? 0,
           totalDistanceKm: stats?.totalDistanceKm ?? 0,
           estimatedPrice: stats?.estimatedPrice ?? null,
           totalServiceTime: stats?.totalServiceTime ?? 0,
+          totalWaitingTime: stats?.totalWaitingTime ?? 0,
+          totalBreakTime: stats?.totalBreakTime ?? 0,
+          totalRestTime: stats?.totalRestTime ?? 0,
           totalWorkTime: stats?.totalWorkTime ?? 0,
         },
       });

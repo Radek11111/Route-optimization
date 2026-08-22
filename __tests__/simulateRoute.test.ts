@@ -627,4 +627,31 @@ describe("simulateRoute", () => {
     expect(state.currentTime).toBe(40);
     expect(state.violations.shiftEnd).toBeGreaterThan(0);
   });
+
+  it("handles overnight time windows crossing midnight", () => {
+    const constraints: Constraints = {
+      workStartMinutes: 0,
+      workEndMinutes: 30,
+      maxWorkDurationMinutes: 100000,
+    };
+
+    const state = createSimulationState(0, constraints);
+    const points: Point[] = [
+      { id: "depot", latitude: 0, longitude: 0 },
+      {
+        id: "A",
+        latitude: 0,
+        longitude: 0,
+        timeWindow: { start: 1320, end: 120 },
+      },
+    ];
+    const matrix = [
+      [0, 1380],
+      [1380, 0],
+    ];
+
+    simulateRoute([0], matrix, points, constraints, 0, state);
+
+    expect(state.violations.timeWindows).toHaveLength(0);
+  });
 });

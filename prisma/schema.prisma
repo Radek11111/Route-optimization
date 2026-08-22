@@ -97,14 +97,22 @@ model Solution {
 
   totalCost Float @default(0)
   feasible Boolean
-
   status SolutionStatus @default(PENDING)
 
   travelTime Float @default(0)
+  serviceTime Float @default(0)
+  waitingTime Float @default(0)
+  breakTime Float @default(0)
+  restTime Float @default(0)
+
+
   workTimePenalty Float @default(0)
+  shiftEndPenalty Float @default(0)
   timeWindowPenalty Float @default(0)
   returnToDepotPenalty Float @default(0)
   priorityPenalty Float @default(0)
+  drivingRulesPenalty Float @default(0)
+  
 
   naiveDistanceKm Float?
   savedDistanceKm Float?
@@ -127,11 +135,13 @@ model Solution {
 
 model VehicleRoute {
   id        String   @id @default(uuid())
-
   vehicleIndex Int
 
   totalServiceTime Float?
   totalTravelTime Float?
+  totalWaitingTime Float?
+  totalBreakTime Float?
+  totalRestTime Float?
   totalWorkTime Float?
   feasible Boolean?
 

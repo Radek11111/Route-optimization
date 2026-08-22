@@ -2,6 +2,7 @@ import { Constraints, DrivingRules } from "@/domain/types/Constraints";
 import { Point } from "@/domain/types/Point";
 import { RouteSimulationState } from "@/domain/types/RouteSimulationState";
 import { finalizeSimulation } from "./finalizeSimulation";
+import { wait } from "next/dist/lib/wait";
 
 type advanceKind = "driving" | "shortBreak" | "dailyRest";
 
@@ -162,18 +163,34 @@ function insertDailyRest(state: RouteSimulationState, rules: DrivingRules) {
 function handleTimeWindow(state: RouteSimulationState, point: Point) {
   if (!point.timeWindow) return;
 
+  const { start, end } = point.timeWindow;
   const arrival = state.currentTime % 1440;
+  const isOvernight = start > end;
 
-  if (arrival < point.timeWindow.start) {
-    state.currentTime += point.timeWindow.start - arrival;
+  const withinWindow = isOvernight
+    ? arrival >= start || arrival <= end
+    : arrival >= start && arrival <= end;
+
+  if (withinWindow) return;
+
+  if (isOvernight) {
+    const waiting = start - arrival;
+    state.currentTime += waiting;
+    state.totalWaitingTime += waiting;
     return;
   }
-  if (arrival > point.timeWindow.end) {
-    state.violations.timeWindows.push({
-      pointId: point.id,
-      violation: arrival - point.timeWindow.end,
-    });
+
+  if (arrival < start) {
+    const waiting = start - arrival;
+    state.currentTime += waiting;
+    state.totalWaitingTime += waiting;
+    return;
   }
+
+  state.violations.timeWindows.push({
+    pointId: point.id,
+    violation: arrival - end,
+  });
 }
 
 function applyServiceTime(

@@ -11,6 +11,8 @@ export function createSimulationState(
     totalServiceTime: 0,
     totalBreakTime: 0,
     totalRestTime: 0,
+    totalWaitingTime: 0,
+
     lastPointIndex: depotIndex,
 
     continuousDrivingMinutes: 0,
@@ -21,7 +23,6 @@ export function createSimulationState(
     exceptionUsedThisCycle: false,
 
     workSinceBreakMinutes: 0,
-    
 
     violations: {
       workTime: 0,

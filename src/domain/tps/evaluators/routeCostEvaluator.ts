@@ -32,13 +32,17 @@ export function routeCostEvaluator(
 
   const breakdown: CostBreakdown = {
     travelTime: state.totalTravelTime,
+    serviceTime: state.totalServiceTime,
+    waitingTime: state.totalWaitingTime,
+    breakTime: state.totalBreakTime,
+    restTime: state.totalRestTime,
+
     workTimePenalty,
     shiftEndPenalty,
     timeWindowPenalty,
     priorityPenalty,
     returnToDepotPenalty,
     drivingRulesPenalty,
-    drivingBreaks: state.totalBreakTime + state.totalRestTime,
   };
 
   const totalCost =

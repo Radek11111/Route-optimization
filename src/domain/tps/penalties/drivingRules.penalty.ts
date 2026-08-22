@@ -1,5 +1,6 @@
 import { RouteSimulationState } from "@/domain/types/RouteSimulationState";
-import { PENALTIES } from "./penalty.config";
+import { PENALTIES } from "../../../../penalty.config";
+
 
 export function calculateDrivingRulesPenalty(
   state: RouteSimulationState,
