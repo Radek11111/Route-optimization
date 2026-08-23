@@ -96,8 +96,10 @@ model Solution {
   id        String   @id @default(uuid())
 
   totalCost Float @default(0)
-  feasible Boolean
+  feasible Boolean @default(false)
+
   status SolutionStatus @default(PENDING)
+  errorMessage String?
 
   travelTime Float @default(0)
   serviceTime Float @default(0)
@@ -122,14 +124,15 @@ model Solution {
   route      Route  @relation(fields: [routeId], references: [id], onDelete: Cascade)
 
   createdAt DateTime @default(now())
- vehicleRoutes VehicleRoute[]
+  updatedAt DateTime @updatedAt
 
- updatedAt DateTime @updatedAt
+  vehicleRoutes VehicleRoute[]
+  unassignedPoints UnassignedPoint[]
 
- totalDistanceKm Float?
+
+  totalDistanceKm Float?
   estimatedPrice  Float?
 
- unassignedPoints UnassignedPoint[]
  @@index([routeId, createdAt])
 }
 

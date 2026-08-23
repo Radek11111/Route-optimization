@@ -1,5 +1,6 @@
 import { createMatrixProvider } from "@/domain/matrix/factory/createMatrixProvider";
 import { optimizeRateLimit } from "@/lib/rateLimit";
+import { saveFailedSolution } from "@/modules/optimization/repositories/optimization-repository";
 import { getRouteById } from "@/modules/routes/repositories/route-repository";
 import { runOptimizationService } from "@/modules/routes/services/run-optimatization.service";
 import { saveOptimizationResultService } from "@/modules/routes/services/save-OptimizationResult.service";
@@ -15,8 +16,8 @@ export async function POST(
     params: Promise<{ id: string }>;
   },
 ) {
+  const { id } = await params;
   try {
-    const { id } = await params;
     const auth = await requireRouteOwner(id);
     if (!auth.ok) return auth.response;
 
@@ -75,14 +76,14 @@ export async function POST(
   } catch (error) {
     console.error(error);
 
-    return NextResponse.json(
-      {
-        success: false,
-        message: error instanceof Error ? error.message : "Unknown error",
-      },
-      {
-        status: 500,
-      },
-    );
+    const message = error instanceof Error ? error.message : "Unknown error";
+
+    try {
+      await saveFailedSolution(id, message);
+    } catch (persistError) {
+      console.error("Failed to persist FAILED solution record:", persistError);
+    }
+
+    return NextResponse.json({ success: false, message }, { status: 500 });
   }
 }
