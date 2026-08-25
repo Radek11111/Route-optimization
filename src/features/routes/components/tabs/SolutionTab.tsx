@@ -75,6 +75,23 @@ export function SolutionTab({ routeId }: Props) {
                     </span>
                   </>
                 )}
+              {(vr.totalWaitingTime > 0 ||
+                vr.totalBreakTime > 0 ||
+                vr.totalRestTime > 0) && (
+                <div className="flex gap-3 text-[11px] text-muted-foreground">
+                  {vr.totalWaitingTime > 0 && (
+                    <span>
+                      Oczekiwanie: {formatMinutes(vr.totalWaitingTime)}
+                    </span>
+                  )}
+                  {vr.totalBreakTime > 0 && (
+                    <span>Przerwy: {formatMinutes(vr.totalBreakTime)}</span>
+                  )}
+                  {vr.totalRestTime > 0 && (
+                    <span>Odpoczynek: {formatMinutes(vr.totalRestTime)}</span>
+                  )}
+                </div>
+              )}
               </div>
 
               {vr.stops.length > 0 && (

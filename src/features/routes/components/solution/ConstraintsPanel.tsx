@@ -29,31 +29,55 @@ export function ConstraintsPanel({ solution }: Props) {
     (vr: any) => vr.stops.length > 0,
   ).length;
 
+  const rows = [
+    {
+      label: "Maks. czas pracy",
+      ok: solution.workTimePenalty === 0,
+      detail:
+        solution.workTimePenalty === 0 ? "W limicie" : "Przekroczono limit",
+    },
+    {
+      label: "Koniec zmiany",
+      ok: solution.shiftEndPenalty === 0,
+      detail:
+        solution.shiftEndPenalty === 0
+          ? "W oknie zmiany"
+          : "Przekroczono godzinę końca",
+    },
+    {
+      label: "Okna czasowe",
+      ok: solution.timeWindowPenalty === 0,
+      detail:
+        solution.timeWindowPenalty === 0
+          ? "Brak naruszeń"
+          : "Naruszone okna dostaw",
+    },
+    {
+      label: "Powrót do bazy",
+      ok: solution.returnToDepotPenalty === 0,
+      detail:
+        solution.returnToDepotPenalty === 0
+          ? "OK"
+          : "Nie wszystkie pojazdy wróciły",
+    },
+    {
+      label: "Wykorzystanie pojazdów",
+      ok: activeVehicles > 0,
+      detail: `${activeVehicles}/${solution.vehicleRoutes.length} aktywnych`,
+    },
+    {
+      label: "Punkty nieprzypisane",
+      ok: unassigned === 0,
+      detail: unassigned === 0 ? "0 punktów" : `${unassigned} punktów`,
+    },
+  ];
+
   return (
     <div>
       <h3 className="text-sm font-semibold mb-3">3. Ograniczenia</h3>
-      <ConstraintRow
-        label="Czas pracy kierowcy"
-        ok={allFeasible}
-        detail={
-          allFeasible ? "Wszystkie pojazdy w limicie" : "Przekroczono limit"
-        }
-      />
-      <ConstraintRow
-        label="Wykorzystanie pojazdów"
-        ok={activeVehicles > 0}
-        detail={`${activeVehicles}/${solution.vehicleRoutes.length} aktywnych`}
-      />
-      <ConstraintRow
-        label="Punkty nieprzypisane"
-        ok={unassigned === 0}
-        detail={unassigned === 0 ? "0 punktów" : `${unassigned} punktów`}
-      />
-      <ConstraintRow
-        label="Rozwiązanie"
-        ok={allFeasible}
-        detail={allFeasible ? "Rozwiązanie poprawne" : "Naruszenia ograniczeń"}
-      />
+      {rows.map((row) => (
+        <ConstraintRow key={row.label} {...row} />
+      ))}
     </div>
   );
 }
