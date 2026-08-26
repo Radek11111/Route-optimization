@@ -2,7 +2,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useCreateRoute } from "../api/useCreateRoute";
 import { useForm } from "react-hook-form";
-import { CreateRouteInput } from "@/types/CreateRoute";
+
 import { zodResolver } from "@hookform/resolvers/zod";
 import { createRouteSchema } from "@/modules/routes/schemas/create-route.schema";
 import {

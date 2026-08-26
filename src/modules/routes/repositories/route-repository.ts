@@ -15,10 +15,12 @@ export async function createRoute(input: Input) {
       workStartMinutes: input.workStartMinutes,
       workEndMinutes: input.workEndMinutes,
       maxWorkDurationMinutes: input.maxWorkDurationMinutes,
-      breakAfterMinutes: input.breakAfterMinutes,
-      breakDurationMinutes: input.breakDurationMinutes,
+
       returnToDepot: input.returnToDepot,
       ratePerKm: input.ratePerKm,
+      driverMode: input.driverMode,
+      courierBreakAfterMinutes: input.courierBreakAfterMinutes,
+      courierBreakDurationMinutes: input.courierBreakDurationMinutes,
     },
   });
 }
@@ -65,10 +67,12 @@ export async function updateRoute(
       workStartMinutes: data.workStartMinutes,
       workEndMinutes: data.workEndMinutes,
       maxWorkDurationMinutes: data.maxWorkDurationMinutes,
-      breakAfterMinutes: data.breakAfterMinutes,
-      breakDurationMinutes: data.breakDurationMinutes,
+
       returnToDepot: data.returnToDepot,
       ratePerKm: data.ratePerKm,
+      driverMode: data.driverMode,
+      courierBreakAfterMinutes: data.courierBreakAfterMinutes,
+      courierBreakDurationMinutes: data.courierBreakDurationMinutes,
     },
   });
 }

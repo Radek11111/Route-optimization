@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useConfigRoute } from "../api/useConfigRoute";
 import { useForm } from "react-hook-form";
-import { CreateRouteInput } from "@/types/CreateRoute";
+
 import {
   Dialog,
   DialogContent,

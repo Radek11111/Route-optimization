@@ -23,6 +23,12 @@ enum SolutionStatus {
   FAILED
 }
 
+enum DriverMode {
+  TRUCK
+  COURIER
+  NONE
+}
+
 
 
 model Route {
@@ -51,11 +57,15 @@ model Route {
    workStartMinutes       Int
   workEndMinutes         Int
   maxWorkDurationMinutes Int
-  breakAfterMinutes      Int?
-  breakDurationMinutes   Int?
+ 
   returnToDepot          Boolean @default(false)
 
   ratePerKm Float?
+
+   driverMode DriverMode @default(TRUCK)
+
+   courierBreakAfterMinutes    Int?
+  courierBreakDurationMinutes Int?
 
   @@index([userId])
    @@index([depotPointId])
