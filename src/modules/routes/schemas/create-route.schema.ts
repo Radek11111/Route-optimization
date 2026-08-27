@@ -10,7 +10,7 @@ export const createRouteSchema = z
     maxWorkDurationMinutes: z.number().int().min(0),
     returnToDepot: z.boolean(),
     ratePerKm: z.number().optional(),
-    driverMode: z.enum(["TRUCK", "COURIER", "NONE"]).default("TRUCK"),
+    driverMode: z.enum(["TRUCK", "COURIER", "NONE"]),
     courierBreakAfterMinutes: z.number().int().min(1).optional(),
     courierBreakDurationMinutes: z.number().int().min(1).optional(),
   })
