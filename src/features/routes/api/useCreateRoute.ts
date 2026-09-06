@@ -1,4 +1,5 @@
-import { CreateRouteInput } from "@/types/CreateRoute";
+
+import { CreateRouteInput } from "@/modules/routes/schemas/create-route.schema";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 async function createRoute(input: CreateRouteInput) {
