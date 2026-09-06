@@ -6,7 +6,7 @@ import {
 } from "@/modules/routes/schemas/create-route.schema";
 import { RouteType } from "@/types/RouteType";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
+import { Resolver, useForm } from "react-hook-form";
 
 const DEFAULT_VALUES: CreateRouteInput = {
   name: "",
@@ -40,7 +40,7 @@ function mapRouteToFormValues(route: RouteType): CreateRouteInput {
 
 export function useRouteForm(route?: RouteType) {
   return useForm<CreateRouteInput>({
-    resolver: zodResolver(createRouteSchema),
+    resolver: zodResolver(createRouteSchema) as Resolver<CreateRouteInput>,
     ...(route
       ? { values: mapRouteToFormValues(route) }
       : { defaultValues: DEFAULT_VALUES }),

@@ -7,7 +7,6 @@ import { createRouteService } from "@/modules/routes/services/create-route.servi
 import { errorResponse, successResponse } from "@/shared/utils/api-response";
 import {
   requireAuth,
-  requireRouteOwner,
 } from "@/shared/utils/require-route-owner";
 import { auth } from "@clerk/nextjs/server";
 
