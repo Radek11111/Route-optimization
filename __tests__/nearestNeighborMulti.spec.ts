@@ -1,14 +1,14 @@
 import { describe, it, expect } from "vitest";
 import { nearestNeighborMulti } from "@/domain/tps/heuristics/nearestNeighborMulti";
 
-const matrix = [
-  [0, 10, 20, 30],
-  [10, 0, 15, 25],
-  [20, 15, 0, 18],
-  [30, 25, 18, 0],
-];
 
 describe("nearestNeighborMulti", () => {
+  const matrix = [
+    [0, 10, 20, 30],
+    [10, 0, 15, 25],
+    [20, 15, 0, 18],
+    [30, 25, 18, 0],
+  ];
   it("assigns all points exactly once", () => {
     const result = nearestNeighborMulti({
       pointCount: 4,

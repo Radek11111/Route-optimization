@@ -12,10 +12,10 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> },
 ) {
   const { id } = await params;
-  const result = await requireRouteOwner(id);
-  if (result.response) return result.response;
+  const auth = await requireRouteOwner(id);
+  if (!auth.ok) return auth.response;
 
-  return successResponse(result.route, 200);
+  return successResponse(auth.route, 200);
 }
 
 export async function PATCH(
@@ -23,19 +23,16 @@ export async function PATCH(
   { params }: { params: Promise<{ id: string }> },
 ) {
   try {
-    const { userId } = await auth();
-    if(!userId) return errorResponse("Unauthorized", 401);
-
     const { id } = await params;
-    const existingRoute = await getRouteById(id);
+    const auth = await requireRouteOwner(id);
 
-    if(!existingRoute) return errorResponse("Route not found", 404);
-    if (existingRoute.userId !== userId) return errorResponse("Unauthorized access", 404);
+    if (!auth.ok) return auth.response;
 
     const body = await request.json();
     const parsed = updateRouteSchema.parse(body);
+
     const updatedRoute = await updateRoute(id, parsed);
-    
+
     return successResponse(updatedRoute, 200);
   } catch (error) {
     console.error("Route update error:", error);

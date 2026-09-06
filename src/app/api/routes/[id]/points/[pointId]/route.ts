@@ -1,5 +1,9 @@
-import { deletePoint, getPointWithRoute } from "@/modules/points/repositories/point-repository";
+import {
+  deletePoint,
+  getPointWithRoute,
+} from "@/modules/points/repositories/point-repository";
 import { errorResponse, successResponse } from "@/shared/utils/api-response";
+import { requireRouteOwner } from "@/shared/utils/require-route-owner";
 import { auth } from "@clerk/nextjs/server";
 
 export async function DELETE(
@@ -7,15 +11,15 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string; pointId: string }> },
 ) {
   try {
-     const { userId } = await auth();
-     if (!userId) return errorResponse("Unauthorized", 401);
+    const { id, pointId } = await params;
+    const auth = await requireRouteOwner(id);
 
-    const { pointId } = await params;
+    if (!auth.ok) return auth.response;
 
-     const point = await getPointWithRoute(pointId);
-     if (!point || point.route.userId !== userId) {
-       return errorResponse("Point not found", 404);
-     }
+    const point = await getPointWithRoute(pointId);
+    if (!point || point.route.userId !== id) {
+      return errorResponse("Point not found", 404);
+    }
 
     const deletedPoint = await deletePoint(pointId);
     return successResponse(deletedPoint, 200);

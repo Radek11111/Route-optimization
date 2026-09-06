@@ -1,5 +1,7 @@
 import prisma from "@/lib/prisma";
 import { getRouteById } from "@/modules/routes/repositories/route-repository";
+import { errorResponse, successResponse } from "@/shared/utils/api-response";
+import { requireRouteOwner } from "@/shared/utils/require-route-owner";
 import { auth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 
@@ -8,23 +10,9 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> },
 ) {
   try {
-      const { userId } = await auth();
-      if (!userId) {
-        return NextResponse.json(
-          { success: false, message: "Unauthorized" },
-          { status: 401 },
-        );
-      }
-
     const { id } = await params;
-
-     const route = await getRouteById(id);
-     if (!route || route.userId !== userId) {
-       return NextResponse.json(
-         { success: false, message: "Route not found" },
-         { status: 404 },
-       );
-     }
+    const auth = await requireRouteOwner(id);
+    if (!auth.ok) return auth.response;
 
     const solution = await prisma.solution.findFirst({
       where: {
@@ -49,24 +37,16 @@ export async function GET(
         },
       },
     });
-   
+
     if (!solution) {
-      return NextResponse.json(
-        { success: false, message: "No solution found for this route." },
-        { status: 404 },
-      );
+      return errorResponse("No solution found for this route.", 404);
     }
-    return NextResponse.json({ success: true, data: solution });
+    return successResponse(solution, 200);
   } catch (error) {
     console.error("Error fetching solution:", error);
-    return NextResponse.json(
-      {
-        success: false,
-        message: error instanceof Error ? error.message : "Unknown error",
-      },
-      {
-        status: 500,
-      },
+    return errorResponse(
+      error instanceof Error ? error.message : "Unknown error",
+      500,
     );
   }
 }

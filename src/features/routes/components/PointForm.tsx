@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { useSetDepot } from "../api/useSetDepot";
 import { z } from "zod";
 import { useCreatePoint } from "../api/useCreatePoint";
-import { useAddressSearch } from "../api/useAddressSearch";
+import { useAddressSearch } from "../../hook/useAddressSearch";
 import { useState } from "react";
 
 type Props = {

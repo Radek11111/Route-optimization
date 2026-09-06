@@ -1,5 +1,6 @@
 import { setRouteDepotService } from "@/modules/routes/services/set-route-depot.service";
 import { errorResponse, successResponse } from "@/shared/utils/api-response";
+import { requireRouteOwner } from "@/shared/utils/require-route-owner";
 import { auth } from "@clerk/nextjs/server";
 
 import { NextRequest } from "next/server";
@@ -18,13 +19,13 @@ export async function PUT(
   },
 ) {
   try {
-     const { userId } = await auth();
-     if (!userId) return errorResponse("Unauthorized", 401);
+    const { id } = await params;
+    const auth = await requireRouteOwner(id);
+    if (!auth.ok) return auth.response;
 
     const body = await req.json();
     const parsed = schema.parse(body);
 
-    const { id } = await params;
     const route = await setRouteDepotService(id, parsed.pointId);
 
     return successResponse(route, 200);

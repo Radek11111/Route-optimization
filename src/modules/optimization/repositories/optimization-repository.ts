@@ -48,7 +48,7 @@ export async function saveFullSolution(data: {
 
   const allPoints = [depotPoint, ...points];
   return prisma.$transaction(async (tx) => {
-    await tx.solution.deleteMany({ where: { routeId } });
+    
 
     const savedSolution = await tx.solution.create({
       data: {
@@ -131,5 +131,19 @@ export async function saveFullSolution(data: {
       });
     }
     return savedSolution;
+  });
+}
+
+export async function saveFailedSolution(
+  routeId: string,
+  errorMessage: string,
+) {
+  return prisma.solution.create({
+    data: {
+      routeId,
+      status: "FAILED",
+      feasible: false,
+      errorMessage: errorMessage.slice(0, 1000),
+    },
   });
 }

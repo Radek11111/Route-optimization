@@ -1,8 +1,10 @@
 import { createMatrixProvider } from "@/domain/matrix/factory/createMatrixProvider";
 import { optimizeRateLimit } from "@/lib/rateLimit";
+import { saveFailedSolution } from "@/modules/optimization/repositories/optimization-repository";
 import { getRouteById } from "@/modules/routes/repositories/route-repository";
 import { runOptimizationService } from "@/modules/routes/services/run-optimatization.service";
 import { saveOptimizationResultService } from "@/modules/routes/services/save-OptimizationResult.service";
+import { requireRouteOwner } from "@/shared/utils/require-route-owner";
 import { auth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 
@@ -14,17 +16,14 @@ export async function POST(
     params: Promise<{ id: string }>;
   },
 ) {
+  const { id } = await params;
   try {
-    const { userId } = await auth();
-    if (!userId) {
-      return NextResponse.json(
-        { success: false, message: "Unauthorized" },
-        { status: 401 },
-      );
-    }
+    const auth = await requireRouteOwner(id);
+    if (!auth.ok) return auth.response;
 
-    const { success, limit, remaining, reset } =
-      await optimizeRateLimit.limit(userId);
+    const { success, limit, remaining, reset } = await optimizeRateLimit.limit(
+      auth.userId,
+    );
     if (!success) {
       return NextResponse.json(
         {
@@ -39,16 +38,6 @@ export async function POST(
             "X-RateLimit-Reset": reset.toString(),
           },
         },
-      );
-    }
-
-    const { id } = await params;
-
-    const route = await getRouteById(id);
-    if (!route || route.userId !== userId) {
-      return NextResponse.json(
-        { success: false, message: "Route not found" },
-        { status: 404 },
       );
     }
 
@@ -87,14 +76,14 @@ export async function POST(
   } catch (error) {
     console.error(error);
 
-    return NextResponse.json(
-      {
-        success: false,
-        message: error instanceof Error ? error.message : "Unknown error",
-      },
-      {
-        status: 500,
-      },
-    );
+    const message = error instanceof Error ? error.message : "Unknown error";
+
+    try {
+      await saveFailedSolution(id, message);
+    } catch (persistError) {
+      console.error("Failed to persist FAILED solution record:", persistError);
+    }
+
+    return NextResponse.json({ success: false, message }, { status: 500 });
   }
 }

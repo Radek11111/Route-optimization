@@ -3,18 +3,34 @@ import { Route } from "@/generated/prisma/client";
 import { DEFAULT_EU_DRIVING_RULES } from "@/lib/drivingRules";
 
 export function mapConstraintsToDomain(route: Route): Constraints {
-  return {
+  const base: Constraints = {
     workStartMinutes: route.workStartMinutes,
     workEndMinutes: route.workEndMinutes,
     maxWorkDurationMinutes: route.maxWorkDurationMinutes,
-    breakRules:
-      route.breakAfterMinutes !== null && route.breakDurationMinutes !== null
-        ? {
-            afterMinutes: route.breakAfterMinutes,
-            breakDurationMinutes: route.breakDurationMinutes,
-          }
-        : undefined,
     returnToDepot: route.returnToDepot,
-    drivingRules: DEFAULT_EU_DRIVING_RULES,
   };
+
+  switch (route.driverMode) {
+    case "TRUCK":
+      return { ...base, drivingRules: DEFAULT_EU_DRIVING_RULES };
+    case "COURIER":
+      return {
+        ...base,
+        breakRules:
+          route.courierBreakAfterMinutes != null &&
+          route.courierBreakDurationMinutes != null
+            ? {
+                afterMinutes: route.courierBreakAfterMinutes,
+                breakDurationMinutes: route.courierBreakDurationMinutes,
+              }
+            : undefined,
+      };
+
+    case "NONE":
+      return base;
+    default:
+      throw new Error(
+        `Unhandled driverMode: ${route.driverMode satisfies never}`,
+      );
+  }
 }

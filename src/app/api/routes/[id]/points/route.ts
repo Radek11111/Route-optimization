@@ -6,6 +6,7 @@ import { createPointSchema } from "@/modules/points/schemas/create-point.schema"
 import { getRouteById } from "@/modules/routes/repositories/route-repository";
 import { createPointService } from "@/modules/routes/services/create-point.service";
 import { errorResponse, successResponse } from "@/shared/utils/api-response";
+import { requireRouteOwner } from "@/shared/utils/require-route-owner";
 import { auth } from "@clerk/nextjs/server";
 
 export async function POST(
@@ -13,14 +14,10 @@ export async function POST(
   { params }: { params: Promise<{ id: string }> },
 ) {
   try {
-    const { userId } = await auth();
-    if (!userId) return errorResponse("Unauthorized", 401);
-
     const { id } = await params;
+    const auth = await requireRouteOwner(id);
 
-    const route = await getRouteById(id);
-    if (!route || route.userId !== userId)
-      return errorResponse("Route not found", 404);
+    if (!auth.ok) return auth.response;
 
     const body = await request.json();
     const parsed = createPointSchema.parse(body);
@@ -42,14 +39,10 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> },
 ) {
   try {
-    const { userId } = await auth();
-    if (!userId) return errorResponse("Unauthorized", 401);
-
     const { id } = await params;
+    const auth = await requireRouteOwner(id);
 
-    const route = await getRouteById(id);
-    if (!route || route.userId !== userId)
-      return errorResponse("Route not found", 404);
+    if (!auth.ok) return auth.response;
 
     const points = await getPointsByRouteId(id);
     return successResponse(points, 200);
