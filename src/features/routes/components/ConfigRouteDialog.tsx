@@ -42,7 +42,7 @@ export function ConfigRouteDialog({ routeId }: Props) {
           ✎ Konfiguruj trasę ↗
         </div>
       </DialogTrigger>
-      <DialogContent className="z-1000">
+      <DialogContent className="z-[1000]">
         <DialogHeader>
           <DialogTitle>✎ Konfiguruj trasę ↗</DialogTitle>
         </DialogHeader>

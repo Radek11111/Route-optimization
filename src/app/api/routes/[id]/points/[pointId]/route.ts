@@ -4,7 +4,7 @@ import {
 } from "@/modules/points/repositories/point-repository";
 import { errorResponse, successResponse } from "@/shared/utils/api-response";
 import { requireRouteOwner } from "@/shared/utils/require-route-owner";
-import { auth } from "@clerk/nextjs/server";
+
 
 export async function DELETE(
   request: Request,

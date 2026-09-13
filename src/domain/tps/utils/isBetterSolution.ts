@@ -1,4 +1,4 @@
-import { CostResult } from "@/domain/types/costResult";
+import { CostResult } from "@/domain/types/CostResult";
 
 export function isBetterSolution(
   candidate: CostResult,

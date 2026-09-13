@@ -2,7 +2,7 @@ import { Constraints } from "@/domain/types/Constraints";
 import { Point } from "@/domain/types/Point";
 import { routeCostEvaluator } from "./routeCostEvaluator";
 import { createEmptyBreakdown } from "../factories/createEmptyBreakdown";
-import { CostResult } from "@/domain/types/costResult";
+import { CostResult } from "@/domain/types/CostResult";
 
 export function solutionCostEvaluator(
   routes: number[][],

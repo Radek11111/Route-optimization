@@ -56,7 +56,7 @@ export function ConfigurationTab({ routeId }: Props) {
       <Row label="Koniec" value={minutesToTime(route.workEndMinutes)} />
       <Row
         label="Maks. czas pracy"
-        value={`${Math.round(route.maxWorkDurationMinutes / 60)}h ${route.breakAfterMinutes % 60}m`}
+        value={`${Math.round(route.maxWorkDurationMinutes / 60)}h ${route.maxWorkDurationMinutes % 60}m`}
       />
 
       {route.breakAfterMinutes && (
