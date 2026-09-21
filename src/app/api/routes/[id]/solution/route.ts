@@ -1,9 +1,6 @@
 import prisma from "@/lib/prisma";
-import { getRouteById } from "@/modules/routes/repositories/route-repository";
 import { errorResponse, successResponse } from "@/shared/utils/api-response";
 import { requireRouteOwner } from "@/shared/utils/require-route-owner";
-import { auth } from "@clerk/nextjs/server";
-import { NextResponse } from "next/server";
 
 export async function GET(
   request: Request,
@@ -44,9 +41,6 @@ export async function GET(
     return successResponse(solution, 200);
   } catch (error) {
     console.error("Error fetching solution:", error);
-    return errorResponse(
-      error instanceof Error ? error.message : "Unknown error",
-      500,
-    );
+    return errorResponse("Failed to fetch solution", 500);
   }
 }

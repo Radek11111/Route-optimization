@@ -17,7 +17,7 @@ export async function DELETE(
     if (!auth.ok) return auth.response;
 
     const point = await getPointWithRoute(pointId);
-    if (!point || point.route.userId !== id) {
+    if (!point || point.route.id !== id) {
       return errorResponse("Point not found", 404);
     }
 
