@@ -1,8 +1,9 @@
-import { Route } from "@/generated/prisma/client";
+
 import { Point } from "@/types/Point";
+import { RouteType } from "@/types/RouteType";
 import { useQuery } from "@tanstack/react-query";
 
-type RouteWithRelations = Route & {
+type RouteWithRelations = RouteType & {
   depotPoint: Point | null;
   _count: { points: number };
 };
