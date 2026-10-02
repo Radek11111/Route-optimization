@@ -4,7 +4,7 @@ import {
 } from "@/modules/points/repositories/point-repository";
 import { errorResponse, successResponse } from "@/shared/utils/api-response";
 import { requireRouteOwner } from "@/shared/utils/require-route-owner";
-import { auth } from "@clerk/nextjs/server";
+
 
 export async function DELETE(
   request: Request,
@@ -17,7 +17,7 @@ export async function DELETE(
     if (!auth.ok) return auth.response;
 
     const point = await getPointWithRoute(pointId);
-    if (!point || point.route.userId !== id) {
+    if (!point || point.route.id !== id) {
       return errorResponse("Point not found", 404);
     }
 

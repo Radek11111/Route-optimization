@@ -16,6 +16,10 @@ function minutesToTime(minutes: number): string {
   return `${h}:${m}`;
 }
 
+function formatDuration(minutes: number): string {
+  return `${Math.floor(minutes / 60)}h ${minutes % 60}m`;
+}
+
 function Section({ title }: { title: string }) {
   return (
     <p className="text-sm font-medium tetx-muded-foreground uppercase tracking-wide mt-4 mb-2">
@@ -42,6 +46,11 @@ export function ConfigurationTab({ routeId }: Props) {
     );
   if (!route) return null;
 
+  const isCourierWithBreak =
+    route.driverMode === "COURIER" &&
+    route.courierBreakAfterMinutes != null &&
+    route.courierBreakDurationMinutes != null;
+
   return (
     <div className="p-4">
       <Section title="Podstawowe" />
@@ -56,19 +65,19 @@ export function ConfigurationTab({ routeId }: Props) {
       <Row label="Koniec" value={minutesToTime(route.workEndMinutes)} />
       <Row
         label="Maks. czas pracy"
-        value={`${Math.round(route.maxWorkDurationMinutes / 60)}h ${route.breakAfterMinutes % 60}m`}
+        value={formatDuration(route.maxWorkDurationMinutes)}
       />
 
-      {route.breakAfterMinutes && (
+      {isCourierWithBreak && (
         <>
-          <Section title="Przerwa" />
+          <Section title="Przerwa (kurier)" />
           <Row
             label="Po"
-            value={`${Math.round(route.breakAfterMinutes / 60)}h ${route.breakAfterMinutes % 60}m`}
+            value={formatDuration(route.courierBreakAfterMinutes!)}
           />
           <Row
-            label="Czas Przerwy"
-            value={`${route.breakDurationMinutes} min`}
+            label="Czas przerwy"
+            value={`${route.courierBreakDurationMinutes} min`}
           />
         </>
       )}
@@ -76,7 +85,7 @@ export function ConfigurationTab({ routeId }: Props) {
       <Section title="Depot" />
       <Row label="Adres" value={route.depotPoint?.name ?? "Nie ustawiony"} />
 
-      <div className="mt-4 w-full rounded-md border px-4 py-2 text-sm font-medium hover:bg-muted">
+      <div className="mt-4">
         <ConfigRouteDialog routeId={routeId} />
       </div>
     </div>

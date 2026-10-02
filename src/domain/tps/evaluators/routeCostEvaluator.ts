@@ -1,5 +1,4 @@
 import { Constraints } from "@/domain/types/Constraints";
-import { CostResult } from "@/domain/types/costResult";
 import { Point } from "@/domain/types/Point";
 import { createSimulationState } from "../factories/createSimulationState";
 import { simulateRoute } from "../engine/simulateRoute";
@@ -11,6 +10,7 @@ import { calculatePriorityPenalty } from "../penalties/priority.penalty";
 import { calculateReturnPenalty } from "../penalties/returnToDepot.penalty";
 import { calculateDrivingRulesPenalty } from "../penalties/drivingRules.penalty";
 import { calculateShiftEndPenalty } from "../penalties/shiftEnd.penalty";
+import { CostResult } from "@/domain/types/CostResult";
 
 export function routeCostEvaluator(
   route: number[],

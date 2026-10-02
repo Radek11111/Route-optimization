@@ -1,6 +1,14 @@
+
+import { Point } from "@/types/Point";
+import { RouteType } from "@/types/RouteType";
 import { useQuery } from "@tanstack/react-query";
 
-async function fetchRoute(routeId: string) {
+type RouteWithRelations = RouteType & {
+  depotPoint: Point | null;
+  _count: { points: number };
+};
+
+async function fetchRoute(routeId: string): Promise<RouteWithRelations> {
   const response = await fetch(`/api/routes/${routeId}`);
 
   if (!response.ok) {

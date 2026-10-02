@@ -1,11 +1,11 @@
 import { createMatrixProvider } from "@/domain/matrix/factory/createMatrixProvider";
 import { optimizeRateLimit } from "@/lib/rateLimit";
 import { saveFailedSolution } from "@/modules/optimization/repositories/optimization-repository";
-import { getRouteById } from "@/modules/routes/repositories/route-repository";
 import { runOptimizationService } from "@/modules/routes/services/run-optimatization.service";
 import { saveOptimizationResultService } from "@/modules/routes/services/save-OptimizationResult.service";
+import { successResponse } from "@/shared/utils/api-response";
+
 import { requireRouteOwner } from "@/shared/utils/require-route-owner";
-import { auth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 
 export async function POST(
@@ -69,21 +69,33 @@ export async function POST(
       vehicleStats,
       solutionBreakdown,
     );
-    return NextResponse.json({
-      success: true,
-      data: dto,
-    });
+    return successResponse(dto, 200);
   } catch (error) {
-    console.error(error);
-
-    const message = error instanceof Error ? error.message : "Unknown error";
+    const detailedMessage =
+      error instanceof Error ? error.message : "Unknown error";
 
     try {
-      await saveFailedSolution(id, message);
+      await saveFailedSolution(id, detailedMessage);
     } catch (persistError) {
       console.error("Failed to persist FAILED solution record:", persistError);
     }
 
-    return NextResponse.json({ success: false, message }, { status: 500 });
+    console.error("Optimization failed:", error);
+
+    const isUserError =
+      error instanceof Error &&
+      [
+        "Route not found",
+        "Depot not configured",
+        "Route has no points",
+      ].includes(error.message);
+
+    return NextResponse.json(
+      {
+        success: false,
+        message: isUserError ? error.message : "Optimization failed",
+      },
+      { status: isUserError ? 400 : 500 },
+    );
   }
 }
